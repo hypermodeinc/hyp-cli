@@ -1,6 +1,8 @@
 import {Command} from '@oclif/core'
+import chalk from "chalk";
 import * as fs from 'node:fs'
-import * as path from 'node:path'
+
+import { fileExists, getEnvFilePath, readEnvFile } from '../../util/index.js'
 
 
 export default class LogoutIndex extends Command {
@@ -18,30 +20,34 @@ export default class LogoutIndex extends Command {
 
   public async run(): Promise<void> {
     
-    const envDir = path.join(process.env.HOME || '', '.hypermode');
-    const envFilePath = path.join(envDir, '.env.local');
+    const envFilePath = getEnvFilePath();
 
     // Check if .env.local file exists
-    if (!fs.existsSync(envFilePath)) {
-      this.log('Not logged in.');
+    if (!fileExists(envFilePath)) {
+      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.');
       return;
     }
 
-    const existingContent = fs.readFileSync(envFilePath, 'utf8');
+    const res = readEnvFile(envFilePath);
 
-    // Extract email from .env.local file
-    const emailMatch = existingContent.match(/HYP_EMAIL=(.*)/);
-    const email = emailMatch ? emailMatch[1] : null;
-
-    if (!email) {
-      this.log('Not logged in.');
+    if (!res.email) {
+      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.');
       return;
     }
 
-    console.log('Logging out of email: ' + email);
+    console.log('Logging out of email: ' + chalk.dim(res.email));
   
     // Remove JWT and email from .env.local file
-    const updatedContent = existingContent.replace(/HYP_JWT=(.*)\n/, '').replace(/HYP_EMAIL=(.*)\n/, '').replace(/HYP_ORG_ID=(.*)\n/,'');
+    const updatedContent = res.content
+    .split('\n')
+    .map((line) => {
+      if (line.startsWith('HYP_JWT') || line.startsWith('HYP_EMAIL') || line.startsWith('HYP_ORG_ID')) {
+        return '';
+      }
+
+      return line;
+    })
+    .join('\n');
 
     fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', { flag: 'w' });
   }
