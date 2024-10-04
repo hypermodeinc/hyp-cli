@@ -70,7 +70,7 @@ export default class CustomHelp extends Help {
 
     for (const topic of topics) {
       if (topic.hidden) continue;
-      out += "  " + chalk.bold.blue(topic.name) + " ".repeat(Math.max(1,this.pre_pad + this.post_pad - topic.name.length)) + topic.description;
+      out += "  " + chalk.bold.blue(topic.name) + " ".repeat(Math.max(1,this.pre_pad + this.post_pad - topic.name.length)) + topic.description + "\n";
     }
     return out.trim();
   }
