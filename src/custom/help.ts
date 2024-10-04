@@ -31,7 +31,7 @@ export default class CustomHelp extends Help {
 
       const rawName = command.id.includes(":") ? command.id.split(":")[1] : command.id;
       const name = chalk.bold.blueBright(rawName);
-      const prePadding = " ".repeat(Math.max(1,this.pre_pad - command.id.length));
+      const prePadding = " ".repeat(Math.max(1,this.pre_pad - rawName.length));
       const args =
         Object.keys(command.args).length > 0
           ? Object.entries(command.args)
@@ -135,7 +135,7 @@ export default class CustomHelp extends Help {
     const { name } = topic;
     const commands = this.sortedCommands.filter((c) => c.id.startsWith(name + ":"));
     for (const command of commands) {
-      if (command.id.length > this.pre_pad) this.pre_pad = command.id.length;
+      if (command.id.split(":")[1].length > this.pre_pad) this.pre_pad = command.id.split(":")[1].length;
       const args =
         Object.keys(command.args).length > 0
           ? Object.entries(command.args)
