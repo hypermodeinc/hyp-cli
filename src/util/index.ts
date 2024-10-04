@@ -42,7 +42,7 @@ export function ask(question: string, rl: Interface, placeholder?: string): Prom
   
 
   export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {
-    const url = 'https://api.hypermode-stage.com/graphql';
+    const url = 'https://api.hypermode.com/graphql';
     const query = `
     query GetOrgs {
       getOrgs {

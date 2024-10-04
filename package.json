@@ -1,10 +1,10 @@
 {
-  "name": "hyp-cli",
+  "name": "@hyp/cli",
   "description": "A new CLI for the Hypermode service",
   "version": "0.0.0",
   "author": "Jai Radhakrishnan",
   "bin": {
-    "hyp-cli": "./bin/run.js"
+    "hyp": "./bin/run.js"
   },
   "bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
   "dependencies": {
@@ -64,8 +64,8 @@
   "main": "dist/index.js",
   "type": "module",
   "oclif": {
-    "bin": "hyp-cli",
-    "dirname": "hyp-cli",
+    "bin": "hyp",
+    "dirname": "hyp",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",

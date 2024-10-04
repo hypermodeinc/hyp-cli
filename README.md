@@ -1,12 +1,12 @@
-hyp-cli
+hyp
 =================
 
 A new CLI for the Hypermode service
 
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/hyp-cli.svg)](https://npmjs.org/package/hyp-cli)
-[![Downloads/week](https://img.shields.io/npm/dw/hyp-cli.svg)](https://npmjs.org/package/hyp-cli)
+[![Version](https://img.shields.io/npm/v/hyp.svg)](https://npmjs.org/package/hyp)
+[![Downloads/week](https://img.shields.io/npm/dw/hyp.svg)](https://npmjs.org/package/hyp)
 
 
 <!-- toc -->
@@ -16,40 +16,40 @@ A new CLI for the Hypermode service
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g hyp-cli
-$ hyp-cli COMMAND
+$ npm install -g @hyp/cli
+$ hyp COMMAND
 running command...
-$ hyp-cli (--version)
-hyp-cli/0.0.0 darwin-arm64 node-v20.11.0
-$ hyp-cli --help [COMMAND]
+$ hyp (--version)
+@hyp/cli/0.0.0 darwin-arm64 node-v20.11.0
+$ hyp --help [COMMAND]
 USAGE
-  $ hyp-cli COMMAND
+  $ hyp COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`hyp-cli hello PERSON`](#hyp-cli-hello-person)
-* [`hyp-cli hello world`](#hyp-cli-hello-world)
-* [`hyp-cli help [COMMAND]`](#hyp-cli-help-command)
-* [`hyp-cli plugins`](#hyp-cli-plugins)
-* [`hyp-cli plugins add PLUGIN`](#hyp-cli-plugins-add-plugin)
-* [`hyp-cli plugins:inspect PLUGIN...`](#hyp-cli-pluginsinspect-plugin)
-* [`hyp-cli plugins install PLUGIN`](#hyp-cli-plugins-install-plugin)
-* [`hyp-cli plugins link PATH`](#hyp-cli-plugins-link-path)
-* [`hyp-cli plugins remove [PLUGIN]`](#hyp-cli-plugins-remove-plugin)
-* [`hyp-cli plugins reset`](#hyp-cli-plugins-reset)
-* [`hyp-cli plugins uninstall [PLUGIN]`](#hyp-cli-plugins-uninstall-plugin)
-* [`hyp-cli plugins unlink [PLUGIN]`](#hyp-cli-plugins-unlink-plugin)
-* [`hyp-cli plugins update`](#hyp-cli-plugins-update)
+* [`hyp hello PERSON`](#hyp-hello-person)
+* [`hyp hello world`](#hyp-hello-world)
+* [`hyp help [COMMAND]`](#hyp-help-command)
+* [`hyp plugins`](#hyp-plugins)
+* [`hyp plugins add PLUGIN`](#hyp-plugins-add-plugin)
+* [`hyp plugins:inspect PLUGIN...`](#hyp-pluginsinspect-plugin)
+* [`hyp plugins install PLUGIN`](#hyp-plugins-install-plugin)
+* [`hyp plugins link PATH`](#hyp-plugins-link-path)
+* [`hyp plugins remove [PLUGIN]`](#hyp-plugins-remove-plugin)
+* [`hyp plugins reset`](#hyp-plugins-reset)
+* [`hyp plugins uninstall [PLUGIN]`](#hyp-plugins-uninstall-plugin)
+* [`hyp plugins unlink [PLUGIN]`](#hyp-plugins-unlink-plugin)
+* [`hyp plugins update`](#hyp-plugins-update)
 
-## `hyp-cli hello PERSON`
+## `hyp hello PERSON`
 
 Say hello
 
 ```
 USAGE
-  $ hyp-cli hello PERSON -f <value>
+  $ hyp hello PERSON -f <value>
 
 ARGUMENTS
   PERSON  Person to say hello to
@@ -61,37 +61,37 @@ DESCRIPTION
   Say hello
 
 EXAMPLES
-  $ hyp-cli hello friend --from oclif
+  $ hyp hello friend --from oclif
   hello friend from oclif! (./src/commands/hello/index.ts)
 ```
 
 _See code: [src/commands/hello/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.0/src/commands/hello/index.ts)_
 
-## `hyp-cli hello world`
+## `hyp hello world`
 
 Say hello world
 
 ```
 USAGE
-  $ hyp-cli hello world
+  $ hyp hello world
 
 DESCRIPTION
   Say hello world
 
 EXAMPLES
-  $ hyp-cli hello world
+  $ hyp hello world
   hello world! (./src/commands/hello/world.ts)
 ```
 
 _See code: [src/commands/hello/world.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.0/src/commands/hello/world.ts)_
 
-## `hyp-cli help [COMMAND]`
+## `hyp help [COMMAND]`
 
-Display help for hyp-cli.
+Display help for hyp.
 
 ```
 USAGE
-  $ hyp-cli help [COMMAND...] [-n]
+  $ hyp help [COMMAND...] [-n]
 
 ARGUMENTS
   COMMAND...  Command to show help for.
@@ -100,18 +100,18 @@ FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for hyp-cli.
+  Display help for hyp.
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.13/src/commands/help.ts)_
 
-## `hyp-cli plugins`
+## `hyp plugins`
 
 List installed plugins.
 
 ```
 USAGE
-  $ hyp-cli plugins [--json] [--core]
+  $ hyp plugins [--json] [--core]
 
 FLAGS
   --core  Show core plugins.
@@ -123,18 +123,18 @@ DESCRIPTION
   List installed plugins.
 
 EXAMPLES
-  $ hyp-cli plugins
+  $ hyp plugins
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/index.ts)_
 
-## `hyp-cli plugins add PLUGIN`
+## `hyp plugins add PLUGIN`
 
-Installs a plugin into hyp-cli.
+Installs a plugin into hyp.
 
 ```
 USAGE
-  $ hyp-cli plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ hyp plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -149,39 +149,39 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into hyp-cli.
+  Installs a plugin into hyp.
 
   Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the HYP_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the HYP_CLI_NPM_REGISTRY environment variable to set the npm registry.
+  Use the HYP_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the HYP_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ hyp-cli plugins add
+  $ hyp plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ hyp-cli plugins add myplugin
+    $ hyp plugins add myplugin
 
   Install a plugin from a github url.
 
-    $ hyp-cli plugins add https://github.com/someuser/someplugin
+    $ hyp plugins add https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ hyp-cli plugins add someuser/someplugin
+    $ hyp plugins add someuser/someplugin
 ```
 
-## `hyp-cli plugins:inspect PLUGIN...`
+## `hyp plugins:inspect PLUGIN...`
 
 Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ hyp-cli plugins inspect PLUGIN...
+  $ hyp plugins inspect PLUGIN...
 
 ARGUMENTS
   PLUGIN...  [default: .] Plugin to inspect.
@@ -197,18 +197,18 @@ DESCRIPTION
   Displays installation properties of a plugin.
 
 EXAMPLES
-  $ hyp-cli plugins inspect myplugin
+  $ hyp plugins inspect myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/inspect.ts)_
 
-## `hyp-cli plugins install PLUGIN`
+## `hyp plugins install PLUGIN`
 
-Installs a plugin into hyp-cli.
+Installs a plugin into hyp.
 
 ```
 USAGE
-  $ hyp-cli plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ hyp plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -223,41 +223,41 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into hyp-cli.
+  Installs a plugin into hyp.
 
   Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the HYP_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the HYP_CLI_NPM_REGISTRY environment variable to set the npm registry.
+  Use the HYP_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the HYP_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ hyp-cli plugins add
+  $ hyp plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ hyp-cli plugins install myplugin
+    $ hyp plugins install myplugin
 
   Install a plugin from a github url.
 
-    $ hyp-cli plugins install https://github.com/someuser/someplugin
+    $ hyp plugins install https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ hyp-cli plugins install someuser/someplugin
+    $ hyp plugins install someuser/someplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/install.ts)_
 
-## `hyp-cli plugins link PATH`
+## `hyp plugins link PATH`
 
 Links a plugin into the CLI for development.
 
 ```
 USAGE
-  $ hyp-cli plugins link PATH [-h] [--install] [-v]
+  $ hyp plugins link PATH [-h] [--install] [-v]
 
 ARGUMENTS
   PATH  [default: .] path to plugin
@@ -276,18 +276,18 @@ DESCRIPTION
 
 
 EXAMPLES
-  $ hyp-cli plugins link myplugin
+  $ hyp plugins link myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/link.ts)_
 
-## `hyp-cli plugins remove [PLUGIN]`
+## `hyp plugins remove [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ hyp-cli plugins remove [PLUGIN...] [-h] [-v]
+  $ hyp plugins remove [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -300,20 +300,20 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ hyp-cli plugins unlink
-  $ hyp-cli plugins remove
+  $ hyp plugins unlink
+  $ hyp plugins remove
 
 EXAMPLES
-  $ hyp-cli plugins remove myplugin
+  $ hyp plugins remove myplugin
 ```
 
-## `hyp-cli plugins reset`
+## `hyp plugins reset`
 
 Remove all user-installed and linked plugins.
 
 ```
 USAGE
-  $ hyp-cli plugins reset [--hard] [--reinstall]
+  $ hyp plugins reset [--hard] [--reinstall]
 
 FLAGS
   --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
@@ -322,13 +322,13 @@ FLAGS
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/reset.ts)_
 
-## `hyp-cli plugins uninstall [PLUGIN]`
+## `hyp plugins uninstall [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ hyp-cli plugins uninstall [PLUGIN...] [-h] [-v]
+  $ hyp plugins uninstall [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -341,22 +341,22 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ hyp-cli plugins unlink
-  $ hyp-cli plugins remove
+  $ hyp plugins unlink
+  $ hyp plugins remove
 
 EXAMPLES
-  $ hyp-cli plugins uninstall myplugin
+  $ hyp plugins uninstall myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/uninstall.ts)_
 
-## `hyp-cli plugins unlink [PLUGIN]`
+## `hyp plugins unlink [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ hyp-cli plugins unlink [PLUGIN...] [-h] [-v]
+  $ hyp plugins unlink [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -369,20 +369,20 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ hyp-cli plugins unlink
-  $ hyp-cli plugins remove
+  $ hyp plugins unlink
+  $ hyp plugins remove
 
 EXAMPLES
-  $ hyp-cli plugins unlink myplugin
+  $ hyp plugins unlink myplugin
 ```
 
-## `hyp-cli plugins update`
+## `hyp plugins update`
 
 Update installed plugins.
 
 ```
 USAGE
-  $ hyp-cli plugins update [-h] [-v]
+  $ hyp plugins update [-h] [-v]
 
 FLAGS
   -h, --help     Show CLI help.
