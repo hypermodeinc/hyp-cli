@@ -1,18 +1,10 @@
 import {Command} from '@oclif/core'
-import chalk from "chalk";
 import * as fs from 'node:fs'
 import * as http from 'node:http'
-import * as path from 'node:path'
 import { createInterface } from "node:readline";
-import fetch from 'node-fetch'
 import open from 'open'
 
-import { ask, clearLine } from '../../util/index.js'
-
-type Org = {
-  id: string;
-  slug: string;
-}
+import { fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest } from '../../util/index.js'
 
 export default class LoginIndex extends Command {
   static override args = {
@@ -56,8 +48,8 @@ export default class LoginIndex extends Command {
           output: process.stdout,
         });
 
-        const orgs = await this.sendGraphQLRequest(jwt);
-        const selectedOrg = await this.promptOrgSelection(rl, orgs);
+        const orgs = await sendGraphQLRequest(jwt);
+        const selectedOrg = await promptOrgSelection(rl, orgs);
         // Store JWT and email securely
         this.writeToEnvFile(jwt, email, selectedOrg.id);
 
@@ -95,66 +87,14 @@ export default class LoginIndex extends Command {
 
   }
 
-  private async promptOrgSelection(rl: ReturnType<typeof createInterface>, orgs: Org[]): Promise<Org> {
-    this.log('Please select an organization:');
-    for (const [index, org] of orgs.entries()) {
-      this.log(chalk.dim(`${index + 1}. ${org.slug}`));
-    }
-
-    const selectedIndex = Number.parseInt(((await ask(chalk.dim("-> "), rl)) || "1").trim(), 10) - 1;
-
-    const org = orgs[selectedIndex];
-    clearLine();
-    clearLine();
-
-    if (!org) {
-      this.log(chalk.red('Invalid selection. Please try again.'));
-      return this.promptOrgSelection(rl, orgs);
-    }
-
-    this.log(`Selected organization: ${chalk.dim(org.slug)}`);
-
-    return org;
-  }
-
   
 
-  private async sendGraphQLRequest(jwt: string): Promise<Org[]> {
-    const url = 'https://api.hypermode-stage.com/graphql';
-    const query = `
-    query GetOrgs {
-      getOrgs {
-          id
-          slug
-      }
-  }`
-
-  const options = {
-    body: JSON.stringify({ query }),
-    headers: {
-      'Authorization': `${jwt}`,
-      'Content-Type': 'application/json'
-    },
-    method: 'POST'
-  };
-
-  const response = await fetch(url, options);
-
-
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-  const data: any = await response.json();
-
-  const orgs: Org[] = data.data.getOrgs;
-
-  return orgs;
-  }
-
   private async writeToEnvFile(jwt: string, email: string, orgId: string): Promise<void> {
-    const envDir = path.join(process.env.HOME || '', '.hypermode');
-    const envFilePath = path.join(envDir, '.env.local');
+    const envDir = getEnvDir();
+    const envFilePath = getEnvFilePath();
 
     // Create the directory if it doesn't exist
-    if (!fs.existsSync(envDir)) {
+    if (!fileExists(envDir)) {
       fs.mkdirSync(envDir, { recursive: true });
     }
 
