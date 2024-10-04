@@ -1,49 +1,45 @@
-import chalk from "chalk";
+import chalk from 'chalk'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { Interface , createInterface } from "node:readline";
+import {Interface, createInterface} from 'node:readline'
 import fetch from 'node-fetch'
 
-
 type Org = {
-  id: string;
-  slug: string;
+  id: string
+  slug: string
 }
 
-
 export function ask(question: string, rl: Interface, placeholder?: string): Promise<string> {
-    return new Promise<string>((res, _) => {
-      rl.question(question + (placeholder ? " " + placeholder + " " : ""), (answer) => {
-        res(answer);
-      });
-    });
+  return new Promise<string>((res, _) => {
+    rl.question(question + (placeholder ? ' ' + placeholder + ' ' : ''), (answer) => {
+      res(answer)
+    })
+  })
+}
+
+export async function promptOrgSelection(rl: ReturnType<typeof createInterface>, orgs: Org[]): Promise<Org> {
+  console.log('Please select an organization:')
+  for (const [index, org] of orgs.entries()) {
+    console.log(chalk.dim(`${index + 1}. ${org.slug}`))
   }
 
-  export async function promptOrgSelection(rl: ReturnType<typeof createInterface>, orgs: Org[]): Promise<Org> {
-    console.log('Please select an organization:');
-    for (const [index, org] of orgs.entries()) {
-      console.log(chalk.dim(`${index + 1}. ${org.slug}`));
-    }
+  const selectedIndex = Number.parseInt(((await ask(chalk.dim('-> '), rl)) || '1').trim(), 10) - 1
 
-    const selectedIndex = Number.parseInt(((await ask(chalk.dim("-> "), rl)) || "1").trim(), 10) - 1;
+  const org = orgs[selectedIndex]
 
-    const org = orgs[selectedIndex];
-
-    if (!org) {
-      console.log(chalk.red('Invalid selection. Please try again.'));
-      return promptOrgSelection(rl, orgs);
-    }
-
-    console.log(`Selected organization: ${chalk.dim(org.slug)}`);
-
-    return org;
+  if (!org) {
+    console.log(chalk.red('Invalid selection. Please try again.'))
+    return promptOrgSelection(rl, orgs)
   }
 
-  
+  console.log(`Selected organization: ${chalk.dim(org.slug)}`)
 
-  export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {
-    const url = 'https://api.hypermode.com/graphql';
-    const query = `
+  return org
+}
+
+export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {
+  const url = 'https://api.hypermode.com/graphql'
+  const query = `
     query GetOrgs {
       getOrgs {
           id
@@ -52,49 +48,53 @@ export function ask(question: string, rl: Interface, placeholder?: string): Prom
   }`
 
   const options = {
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({query}),
     headers: {
-      'Authorization': `${jwt}`,
-      'Content-Type': 'application/json'
+      Authorization: `${jwt}`,
+      'Content-Type': 'application/json',
     },
-    method: 'POST'
-  };
-
-  const response = await fetch(url, options);
-
-
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-  const data: any = await response.json();
-
-  const orgs: Org[] = data.data.getOrgs;
-
-  return orgs;
+    method: 'POST',
   }
 
-  export function getEnvDir(): string {
-    return path.join(process.env.HOME || '', '.hypermode');
-  }
+  const response = await fetch(url, options)
 
-  export function getEnvFilePath(): string {
-    const envDir = getEnvDir();
-    return path.join(envDir, '.env.local');
-  }
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = await response.json()
 
-  export function fileExists(filePath: string): boolean {
-    return fs.existsSync(filePath);
-  }
+  const orgs: Org[] = data.data.getOrgs
 
-  export function readEnvFile(filePath: string): {content: string, email: null | string, jwt: null | string, orgId: null | string} {
-    const content = fs.readFileSync(filePath, 'utf8');
+  return orgs
+}
 
-    const jwtMatch = content.match(/HYP_JWT=(.*)/);
-    const jwt = jwtMatch ? jwtMatch[1] : null;
+export function getEnvDir(): string {
+  return path.join(process.env.HOME || '', '.hypermode')
+}
 
-    const emailMatch = content.match(/HYP_EMAIL=(.*)/);
-    const email = emailMatch ? emailMatch[1] : null;
+export function getEnvFilePath(): string {
+  const envDir = getEnvDir()
+  return path.join(envDir, '.env.local')
+}
 
-    const orgIdMatch = content.match(/HYP_ORG_ID=(.*)/);
-    const orgId = orgIdMatch ? orgIdMatch[1] : null;
+export function fileExists(filePath: string): boolean {
+  return fs.existsSync(filePath)
+}
 
-    return {content, email, jwt, orgId};
-  }
+export function readEnvFile(filePath: string): {
+  content: string
+  email: null | string
+  jwt: null | string
+  orgId: null | string
+} {
+  const content = fs.readFileSync(filePath, 'utf8')
+
+  const jwtMatch = content.match(/HYP_JWT=(.*)/)
+  const jwt = jwtMatch ? jwtMatch[1] : null
+
+  const emailMatch = content.match(/HYP_EMAIL=(.*)/)
+  const email = emailMatch ? emailMatch[1] : null
+
+  const orgIdMatch = content.match(/HYP_ORG_ID=(.*)/)
+  const orgId = orgIdMatch ? orgIdMatch[1] : null
+
+  return {content, email, jwt, orgId}
+}

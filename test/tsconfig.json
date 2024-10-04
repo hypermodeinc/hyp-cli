@@ -8,7 +8,5 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["jest", "@oclif/test"] // Add this line
   },
-  "references": [
-    {"path": ".."}
-  ]
+  "references": [{"path": ".."}]
 }

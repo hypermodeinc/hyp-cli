@@ -1,58 +1,54 @@
-import { Command } from '@oclif/core'
-import chalk from "chalk";
+import {Command} from '@oclif/core'
+import chalk from 'chalk'
 import * as fs from 'node:fs'
-import { createInterface } from "node:readline";
+import {createInterface} from 'node:readline'
 
-import { fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest } from '../../util/index.js'
-
+import {fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest} from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
-  static override args = {
-  }
+  static override args = {}
 
   static override description = 'Switch the current Hypermode organization'
 
-  static override examples = [
-    '<%= config.bin %> <%= command.id %>',
-  ]
+  static override examples = ['<%= config.bin %> <%= command.id %>']
 
   static override flags = {}
 
   public async run(): Promise<void> {
-    const envFilePath = getEnvFilePath();
-    if(!fileExists(envFilePath)) {
-      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.');
-      return;
+    const envFilePath = getEnvFilePath()
+    if (!fileExists(envFilePath)) {
+      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
+      return
     }
 
-    const res = readEnvFile(envFilePath);
+    const res = readEnvFile(envFilePath)
 
     if (!res.email || !res.jwt || !res.orgId) {
-      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.');
-      return;
+      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
+      return
     }
 
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
-    });
+    })
 
-    const orgs = await sendGraphQLRequest(res.jwt);
-    const selectedOrg = await promptOrgSelection(rl, orgs);
+    const orgs = await sendGraphQLRequest(res.jwt)
+    const selectedOrg = await promptOrgSelection(rl, orgs)
 
     const updatedContent = res.content
       .split('\n')
       .map((line) => {
         if (line.startsWith('HYP_ORG_ID')) {
-          return `HYP_ORG_ID=${selectedOrg.id}`;
+          return `HYP_ORG_ID=${selectedOrg.id}`
         }
 
-        return line;
+        return line
       })
-      .join('\n');
+      .join('\n')
 
-    fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', { flag: 'w' });
+    fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
 
-    rl.close();
+    rl.close()
   }
 }

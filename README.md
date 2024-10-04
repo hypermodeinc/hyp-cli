@@ -1,20 +1,21 @@
-hyp
-=================
+# hyp
 
 A new CLI for the Hypermode service
-
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/hyp.svg)](https://npmjs.org/package/hyp)
 [![Downloads/week](https://img.shields.io/npm/dw/hyp.svg)](https://npmjs.org/package/hyp)
 
-
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @hyp/cli
 $ hyp COMMAND
@@ -26,22 +27,26 @@ USAGE
   $ hyp COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`hyp hello PERSON`](#hyp-hello-person)
-* [`hyp hello world`](#hyp-hello-world)
-* [`hyp help [COMMAND]`](#hyp-help-command)
-* [`hyp plugins`](#hyp-plugins)
-* [`hyp plugins add PLUGIN`](#hyp-plugins-add-plugin)
-* [`hyp plugins:inspect PLUGIN...`](#hyp-pluginsinspect-plugin)
-* [`hyp plugins install PLUGIN`](#hyp-plugins-install-plugin)
-* [`hyp plugins link PATH`](#hyp-plugins-link-path)
-* [`hyp plugins remove [PLUGIN]`](#hyp-plugins-remove-plugin)
-* [`hyp plugins reset`](#hyp-plugins-reset)
-* [`hyp plugins uninstall [PLUGIN]`](#hyp-plugins-uninstall-plugin)
-* [`hyp plugins unlink [PLUGIN]`](#hyp-plugins-unlink-plugin)
-* [`hyp plugins update`](#hyp-plugins-update)
+
+- [`hyp hello PERSON`](#hyp-hello-person)
+- [`hyp hello world`](#hyp-hello-world)
+- [`hyp help [COMMAND]`](#hyp-help-command)
+- [`hyp plugins`](#hyp-plugins)
+- [`hyp plugins add PLUGIN`](#hyp-plugins-add-plugin)
+- [`hyp plugins:inspect PLUGIN...`](#hyp-pluginsinspect-plugin)
+- [`hyp plugins install PLUGIN`](#hyp-plugins-install-plugin)
+- [`hyp plugins link PATH`](#hyp-plugins-link-path)
+- [`hyp plugins remove [PLUGIN]`](#hyp-plugins-remove-plugin)
+- [`hyp plugins reset`](#hyp-plugins-reset)
+- [`hyp plugins uninstall [PLUGIN]`](#hyp-plugins-uninstall-plugin)
+- [`hyp plugins unlink [PLUGIN]`](#hyp-plugins-unlink-plugin)
+- [`hyp plugins update`](#hyp-plugins-update)
 
 ## `hyp hello PERSON`
 
@@ -393,4 +398,5 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.10/src/commands/plugins/update.ts)_
+
 <!-- commandsstop -->
