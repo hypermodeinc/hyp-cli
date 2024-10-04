@@ -66,6 +66,7 @@
   "oclif": {
     "bin": "hyp",
     "dirname": "hyp",
+    "helpClass": "./dist/custom/help",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",
