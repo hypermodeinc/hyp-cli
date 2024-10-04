@@ -14,3 +14,4 @@ export function ask(question: string, rl: Interface, placeholder?: string): Prom
     process.stdout.write("\u001B[2K");
     process.stdout.write("\u001B[0G");
   }
+  
