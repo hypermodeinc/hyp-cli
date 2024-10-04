@@ -9,7 +9,7 @@ export default class CustomHelp extends Help {
   private post_pad = 0;
   formatRoot(): string {
     let out = "";
-    out += chalk.bold.blueBright("Hypermode") + " " + chalk.dim("(v" + CLI_VERSION + ")") + "\n\n";
+    out += chalk.bold.blueBright("Hypermode") + " lorum ipsum sit dolor amet " + chalk.dim("(v" + CLI_VERSION + ")") + "\n\n";
 
     // Usage: hyp <command> [...flags] [...args]
     out += chalk.bold("Usage: hyp") + " " + chalk.dim("<command>") + " " + chalk.bold.blueBright("[...flags]") + " " + chalk.bold("[...args]");
