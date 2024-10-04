@@ -1,4 +1,4 @@
-import {Command} from '@oclif/core'
+import { Command } from '@oclif/core'
 import chalk from "chalk";
 import * as fs from 'node:fs'
 import { createInterface } from "node:readline";
@@ -6,18 +6,17 @@ import { createInterface } from "node:readline";
 import { fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest } from '../../util/index.js'
 
 
-export default class ChangeOrg extends Command {
+export default class OrgSwitch extends Command {
   static override args = {
   }
 
-  static override description = 'Change the current Hypermode organization'
+  static override description = 'Switch the current Hypermode organization'
 
   static override examples = [
     '<%= config.bin %> <%= command.id %>',
   ]
 
-  static override flags = {
-  }
+  static override flags = {}
 
   public async run(): Promise<void> {
     const envFilePath = getEnvFilePath();

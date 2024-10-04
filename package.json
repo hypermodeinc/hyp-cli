@@ -74,8 +74,8 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
+      "org": {
+        "description": "Manage your Hypermode organization"
       }
     }
   },
