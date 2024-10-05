@@ -50,7 +50,7 @@ jobs:
       - name: Upload tarballs to release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.package-version.outputs.current-version}}-${{ github.ref }}
+          tag_name: ${{ github.ref }}
           files: ./dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
