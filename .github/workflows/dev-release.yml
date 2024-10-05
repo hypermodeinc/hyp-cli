@@ -1,0 +1,60 @@
+name: Dev Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Build and Release Dev
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.8.0'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build
+        run: npm run build
+
+      - name: Package CLI
+        run: npm pack
+
+      - name: Extract version
+        id: get_version
+        run: echo "::set-output name=VERSION::$(jq -r '.version' package.json)"
+
+      - name: Fetch commit info
+        id: get_git_info
+        run: |
+          git_hash=$(git rev-parse --short "$GITHUB_SHA")
+          git_branch=${GITHUB_REF#refs/heads/}
+          echo "::set-output name=GIT_HASH::$git_hash"
+          echo "::set-output name=GIT_BRANCH::$git_branch"
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: dev-${{ github.run_number }}
+          release_name: Dev Build on ${{ steps.get_git_info.outputs.GIT_BRANCH }} #${{ steps.get_git_info.outputs.GIT_HASH }}
+          draft: false
+          prerelease: true
+
+      - name: Upload release artifacts
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/*.tar.gz
+          asset_name: hyp-v${{ steps.get_version.outputs.VERSION }}-${{ steps.get_git_info.outputs.GIT_HASH }}-${{ steps.get_git_info.outputs.GIT_BRANCH }}-win32-x64.tar.gz  # Version, commit hash, and branch in the filename
+          asset_content_type: application/gzip
