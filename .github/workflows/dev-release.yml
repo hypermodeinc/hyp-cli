@@ -38,10 +38,14 @@ jobs:
       - name: Build tarballs
         run: npm run pack
 
+      - name: Get commit hash
+        id: short-sha
+        run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.package-version.outputs.current-version }}-${{ github.sha }}
+          tag_name: v${{ steps.package-version.outputs.current-version }}-${{ env.SHORT_SHA }}
           draft: ${{ env.draft }}
           files: ./dist/*.tar.gz
           prerelease: true
