@@ -28,9 +28,15 @@ jobs:
 
       - name: Run build
         run: npm run build
+      
+      - name: Prepare for pack
+        run: npm run prepack
 
-      - name: Package CLI
-        run: npm pack
+      - name: Build tarballs
+        run: npm run pack
+
+      - name: Clean up
+        run: npm run postpack
 
       - name: Extract version
         id: get_version
