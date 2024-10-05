@@ -2,11 +2,17 @@ name: Dev Release
 
 on:
   push:
+    tags:
+      - "v*.*.*"
     branches:
       - main
   pull_request:
+    tags:
+      - "v*.*.*"
     branches:
       - '**'
+env:
+  draft: true
 
 jobs:
   dev-release:
@@ -39,6 +45,7 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
+          draft: ${{ env.draft }}
           files: ./dist/*.tar.gz
           prerelease: true
         env:
