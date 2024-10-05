@@ -8,7 +8,8 @@ on:
     branches:
       - '**'
 env:
-  draft: true
+  draft: false
+  channel: dev
 
 jobs:
   dev-release:
@@ -45,7 +46,7 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.package-version.outputs.current-version }}-${{ env.SHORT_SHA }}
+          tag_name: ${{ env.channel }}/v${{ steps.package-version.outputs.current-version }}-${{ env.SHORT_SHA }}
           draft: ${{ env.draft }}
           files: ./dist/*.tar.gz
           prerelease: true
