@@ -2,15 +2,12 @@ name: Dev Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - main
   pull_request:
-    tags:
-      - "v*.*.*"
     branches:
       - '**'
+
 env:
   draft: true
 
@@ -31,7 +28,7 @@ jobs:
 
       - name: Get package version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        run: echo "PACKAGE_VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
         
       - name: Install dependencies
         run: npm install
@@ -45,8 +42,10 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: "v${{ env.PACKAGE_VERSION }}-${{ github.sha }}"
+          name: "Release v${{ env.PACKAGE_VERSION }}-${{ github.sha }}"
           draft: ${{ env.draft }}
-          files: ./dist/*.tar.gz
           prerelease: true
+          files: ./dist/*.tar.gz
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token for GitHub API
