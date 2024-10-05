@@ -9,7 +9,8 @@ on:
       - '**'
 
 jobs:
-  release:
+  dev-release:
+    permissions: write-all
     name: Dev Release
     runs-on: ubuntu-latest
     
