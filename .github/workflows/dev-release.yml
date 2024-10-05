@@ -18,52 +18,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: '22.8.0'
 
+      - name: Get package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        
       - name: Install dependencies
         run: npm install
-
-      - name: Build source files
-        run: npm run build
       
-      - name: Prepare for build
-        run: npm run prepack
+      - name: Build files
+        run: npm run build
 
       - name: Build tarballs
         run: npm run pack
-
-      - name: Clean up build
-        run: npm run postpack
-
-      - name: Extract version
-        id: get_version
-        run: echo "::set-output name=VERSION::$(jq -r '.version' package.json)"
-
-      - name: Fetch commit info
-        id: get_git_info
-        run: |
-          git_hash=$(git rev-parse --short "$GITHUB_SHA")
-          git_branch=${GITHUB_REF#refs/heads/}
-          echo "::set-output name=GIT_HASH::$git_hash"
-          echo "::set-output name=GIT_BRANCH::$git_branch"
-
-      - name: Create GitHub release
+      
+      - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: dev-${{ github.run_number }}
-          release_name: Dev Build on ${{ steps.get_git_info.outputs.GIT_BRANCH }} #${{ steps.get_git_info.outputs.GIT_HASH }}
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
           draft: false
           prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Find and upload release artifacts
-        run: |
-          for file in $(find ./dist -name "*.tar.gz"); do
-            echo "Uploading $file..."
-            gh release upload ${{ steps.create_release.outputs.tag_name }} $file --clobber
-          done
+      - name: Upload tarballs to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version}}-${{ github.ref }}
+          files: ./dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
