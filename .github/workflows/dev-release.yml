@@ -40,8 +40,6 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          name: Release ${{ github.ref }}
           draft: false
           prerelease: true
         env:
@@ -50,7 +48,6 @@ jobs:
       - name: Upload tarballs to release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
           files: ./dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
