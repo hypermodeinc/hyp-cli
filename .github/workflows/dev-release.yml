@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - '**'
-
 env:
   draft: true
 
@@ -16,7 +15,7 @@ jobs:
     permissions: write-all
     name: Dev Release
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,11 +27,11 @@ jobs:
 
       - name: Get package version
         id: package-version
-        run: echo "PACKAGE_VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
-        
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
       - name: Install dependencies
         run: npm install
-      
+
       - name: Build files
         run: npm run build
 
@@ -42,10 +41,9 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "v${{ env.PACKAGE_VERSION }}-${{ github.sha }}"
-          name: "Release v${{ env.PACKAGE_VERSION }}-${{ github.sha }}"
+          tag_name: v${{ steps.package-version.outputs.current-version }}-${{ github.sha }}
           draft: ${{ env.draft }}
-          prerelease: true
           files: ./dist/*.tar.gz
+          prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token for GitHub API
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
