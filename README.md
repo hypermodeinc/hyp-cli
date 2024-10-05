@@ -20,7 +20,7 @@ $ npm install -g @hyp/cli
 $ hyp COMMAND
 running command...
 $ hyp (--version)
-@hyp/cli/0.0.0 darwin-arm64 node-v22.9.0
+@hyp/cli/0.0.0 linux-x64 node-v22.8.0
 $ hyp --help [COMMAND]
 USAGE
   $ hyp COMMAND

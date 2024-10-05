@@ -7,7 +7,6 @@
     "strict": true,
     "target": "es2022",
     "skipLibCheck": true,
-    "composite": true,
     "moduleResolution": "node16"
   },
   "include": ["./src/**/*"],
