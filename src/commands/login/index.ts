@@ -4,7 +4,9 @@ import * as http from 'node:http'
 import {createInterface} from 'node:readline'
 import open from 'open'
 
-import {fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest} from '../../util/index.js'
+import {
+  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
+} from '../../util/index.js'
 
 export default class LoginIndex extends Command {
   static override args = {}
@@ -97,18 +99,18 @@ export default class LoginIndex extends Command {
       const content = fs.readFileSync(envFilePath, 'utf8')
 
       // Check if the file contains HYP_JWT and HYP_EMAIL, if not add them
-      const updatedContent =
-        !content.includes('HYP_JWT=') || !content.includes('HYP_EMAIL=') || !content.includes('HYP_ORG_ID=')
+      const updatedContent
+        = !content.includes('HYP_JWT=') || !content.includes('HYP_EMAIL=') || !content.includes('HYP_ORG_ID=')
           ? content + `HYP_JWT=${jwt}\nHYP_EMAIL=${email}\nHYP_ORG_ID=${orgId}\n`
           : content
-              .split('\n')
-              .map((line) => {
-                if (line.startsWith('HYP_JWT=')) return `HYP_JWT=${jwt}`
-                if (line.startsWith('HYP_EMAIL=')) return `HYP_EMAIL=${email}`
-                if (line.startsWith('HYP_ORG_ID=')) return `HYP_ORG_ID=${orgId}`
-                return line // Keep other lines unchanged
-              })
-              .join('\n')
+          .split('\n')
+          .map(line => {
+            if (line.startsWith('HYP_JWT=')) return `HYP_JWT=${jwt}`
+            if (line.startsWith('HYP_EMAIL=')) return `HYP_EMAIL=${email}`
+            if (line.startsWith('HYP_ORG_ID=')) return `HYP_ORG_ID=${orgId}`
+            return line // Keep other lines unchanged
+          })
+          .join('\n')
 
       // delete the file
       fs.unlinkSync(envFilePath)

@@ -3,7 +3,9 @@ import chalk from 'chalk'
 import * as fs from 'node:fs'
 import {createInterface} from 'node:readline'
 
-import {fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest} from '../../util/index.js'
+import {
+  fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest,
+} from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
   static override args = {}
@@ -37,15 +39,15 @@ export default class OrgSwitch extends Command {
     const selectedOrg = await promptOrgSelection(rl, orgs)
 
     const updatedContent = res.content
-      .split('\n')
-      .map((line) => {
-        if (line.startsWith('HYP_ORG_ID')) {
-          return `HYP_ORG_ID=${selectedOrg.id}`
-        }
+    .split('\n')
+    .map(line => {
+      if (line.startsWith('HYP_ORG_ID')) {
+        return `HYP_ORG_ID=${selectedOrg.id}`
+      }
 
-        return line
-      })
-      .join('\n')
+      return line
+    })
+    .join('\n')
 
     fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
 

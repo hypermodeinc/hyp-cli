@@ -23,17 +23,17 @@ export default class CustomHelp extends Help {
       const rawName = command.id.includes(':') ? command.id.split(':')[1] : command.id
       const name = chalk.bold.blueBright(rawName)
       const prePadding = ' '.repeat(Math.max(1, this.prePad - rawName.length))
-      const args =
-        Object.keys(command.args).length > 0
+      const args
+        = Object.keys(command.args).length > 0
           ? Object.entries(command.args)
-              .map((v) => {
-                if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
-                    return v[1].description.split('-|-')[0]
-                  }
+          .map(v => {
+            if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
+              return v[1].description.split('-|-')[0]
+            }
 
-                return ''
-              })
-              .join(' ')
+            return ''
+          })
+          .join(' ')
           : ''
       const postPadding = ' '.repeat(Math.max(1, this.postPad - args.length))
       const description = command.description!
@@ -47,28 +47,28 @@ export default class CustomHelp extends Help {
 
   formatRoot(): string {
     let out = ''
-    out +=
-      chalk.bold.blueBright('Hypermode') + ' - Build Intelligent APIs. ' + chalk.dim('(v' + CLI_VERSION + ')') + '\n\n'
+    out
+      += chalk.bold.blueBright('Hypermode') + ' - Build Intelligent APIs. ' + chalk.dim('(v' + CLI_VERSION + ')') + '\n\n'
 
     // Usage: hyp <command> [...flags] [...args]
-    out +=
-      chalk.bold('Usage: hyp') +
-      ' ' +
-      chalk.dim('<command>') +
-      ' ' +
-      chalk.bold.blueBright('[...flags]') +
-      ' ' +
-      chalk.bold('[...args]')
+    out
+      += chalk.bold('Usage: hyp')
+      + ' '
+      + chalk.dim('<command>')
+      + ' '
+      + chalk.bold.blueBright('[...flags]')
+      + ' '
+      + chalk.bold('[...args]')
     return out
   }
 
   formatRootFooter(): string {
     let out = ''
-    out +=
-      'View the docs:' +
-      ' '.repeat(Math.max(1, this.prePad + this.postPad - 12)) +
-      chalk.blueBright('https://docs.hypermode.com/introduction') +
-      '\n'
+    out
+      += 'View the docs:'
+      + ' '.repeat(Math.max(1, this.prePad + this.postPad - 12))
+      + chalk.blueBright('https://docs.hypermode.com/introduction')
+      + '\n'
     // out += "View the repo:" + " ".repeat(Math.max(1, this.pre_pad + this.post_pad - 12)) + chalk.blueBright("https://github.com/HypermodeInc/modus") + "\n";
 
     out += '\n'
@@ -87,17 +87,17 @@ export default class CustomHelp extends Help {
 
   formatTopics(topics: Interfaces.Topic[]): string {
     let out = ''
-    if (topics.some((v) => !v.hidden)) out += chalk.bold('Tools:') + '\n'
+    if (topics.some(v => !v.hidden)) out += chalk.bold('Tools:') + '\n'
     else return out
 
     for (const topic of topics) {
       if (topic.hidden) continue
-      out +=
-        '  ' +
-        chalk.bold.blue(topic.name) +
-        ' '.repeat(Math.max(1, this.prePad + this.postPad - topic.name.length)) +
-        topic.description +
-        '\n'
+      out
+        += '  '
+        + chalk.bold.blue(topic.name)
+        + ' '.repeat(Math.max(1, this.prePad + this.postPad - topic.name.length))
+        + topic.description
+        + '\n'
     }
 
     return out.trim()
@@ -114,12 +114,12 @@ export default class CustomHelp extends Help {
     if (command.description) this.log(chalk.dim(command.description))
 
     this.log(
-      chalk.bold('Usage:') +
-        ' ' +
-        chalk.bold('hyp ' + name) +
-        (args.length > 0 ? ' [...args]' : '') +
-        (flags.length > 0 ? chalk.blueBright(' [...flags]') : '') +
-        '\n',
+      chalk.bold('Usage:')
+        + ' '
+        + chalk.bold('hyp ' + name)
+        + (args.length > 0 ? ' [...args]' : '')
+        + (flags.length > 0 ? chalk.blueBright(' [...flags]') : '')
+        + '\n',
     )
     // if (examples) {
     //     this.log();
@@ -159,29 +159,29 @@ export default class CustomHelp extends Help {
     this.log(this.formatRoot())
     this.log('')
     if (!this.opts.all) {
-      rootTopics = rootTopics.filter((t) => !t.name.includes(':'))
-      rootCommands = rootCommands.filter((c) => !c.id.includes(':'))
+      rootTopics = rootTopics.filter(t => !t.name.includes(':'))
+      rootCommands = rootCommands.filter(c => !c.id.includes(':'))
     }
 
     for (const command of rootCommands) {
       if (command.id.length > this.prePad) this.prePad = command.id.length
-      const args =
-        Object.keys(command.args).length > 0
+      const args
+        = Object.keys(command.args).length > 0
           ? Object.entries(command.args)
-              .map((v) => {
-                if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
-                    return v[1].description.split('-|-')[0]
-                  }
+          .map(v => {
+            if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
+              return v[1].description.split('-|-')[0]
+            }
 
-                return ''
-              })
-              .join(' ')
+            return ''
+          })
+          .join(' ')
           : ''
       if (args.length > this.postPad) this.postPad = args.length
     }
 
-    this.postPad =
-      6 + this.prePad + this.postPad > this.targetPad
+    this.postPad
+      = 6 + this.prePad + this.postPad > this.targetPad
         ? 6 + this.prePad + this.postPad - this.targetPad
         : this.targetPad - this.prePad
     this.prePad += 2
@@ -192,7 +192,7 @@ export default class CustomHelp extends Help {
     }
 
     if (rootCommands.length > 0) {
-      rootCommands = rootCommands.filter((c) => c.id)
+      rootCommands = rootCommands.filter(c => c.id)
       this.log(this.formatCommands(rootCommands))
       this.log('')
     }
@@ -202,26 +202,26 @@ export default class CustomHelp extends Help {
 
   async showTopicHelp(topic: Interfaces.Topic) {
     const {name} = topic
-    const commands = this.sortedCommands.filter((c) => c.id.startsWith(name + ':'))
+    const commands = this.sortedCommands.filter(c => c.id.startsWith(name + ':'))
     for (const command of commands) {
       if (command.id.split(':')[1].length > this.prePad) this.prePad = command.id.split(':')[1].length
-      const args =
-        Object.keys(command.args).length > 0
+      const args
+        = Object.keys(command.args).length > 0
           ? Object.entries(command.args)
-              .map((v) => {
-                if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
-                    return v[1].description.split('-|-')[0]
-                  }
+          .map(v => {
+            if (!v[1].hidden && v[1].required && v[1].description && v[1].description.indexOf('-|-') > 0) {
+              return v[1].description.split('-|-')[0]
+            }
 
-                return ''
-              })
-              .join(' ')
+            return ''
+          })
+          .join(' ')
           : ''
       if (args.length > this.postPad) this.postPad = args.length
     }
 
-    this.postPad =
-      6 + this.prePad + this.postPad > this.targetPad
+    this.postPad
+      = 6 + this.prePad + this.postPad > this.targetPad
         ? 6 + this.prePad + this.postPad - this.targetPad
         : this.targetPad - this.prePad
     this.prePad += 2
