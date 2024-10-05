@@ -33,15 +33,15 @@ export default class LogoutIndex extends Command {
 
     // Remove JWT and email from .env.local file
     const updatedContent = res.content
-      .split('\n')
-      .map((line) => {
-        if (line.startsWith('HYP_JWT') || line.startsWith('HYP_EMAIL') || line.startsWith('HYP_ORG_ID')) {
-          return ''
-        }
+    .split('\n')
+    .map(line => {
+      if (line.startsWith('HYP_JWT') || line.startsWith('HYP_EMAIL') || line.startsWith('HYP_ORG_ID')) {
+        return ''
+      }
 
-        return line
-      })
-      .join('\n')
+      return line
+    })
+    .join('\n')
 
     fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
   }

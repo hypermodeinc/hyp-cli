@@ -11,7 +11,7 @@ type Org = {
 
 export function ask(question: string, rl: Interface, placeholder?: string): Promise<string> {
   return new Promise<string>((res, _) => {
-    rl.question(question + (placeholder ? ' ' + placeholder + ' ' : ''), (answer) => {
+    rl.question(question + (placeholder ? ' ' + placeholder + ' ' : ''), answer => {
       res(answer)
     })
   })
@@ -96,5 +96,7 @@ export function readEnvFile(filePath: string): {
   const orgIdMatch = content.match(/HYP_ORG_ID=(.*)/)
   const orgId = orgIdMatch ? orgIdMatch[1] : null
 
-  return {content, email, jwt, orgId}
+  return {
+    content, email, jwt, orgId,
+  }
 }
