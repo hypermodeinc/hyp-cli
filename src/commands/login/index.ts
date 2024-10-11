@@ -1,8 +1,8 @@
 import {Command} from '@oclif/core'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
-import {createInterface} from 'node:readline'
 import path, {dirname} from 'node:path'
+import {createInterface} from 'node:readline'
 import {fileURLToPath} from 'node:url'
 import open from 'open'
 
