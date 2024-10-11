@@ -2,10 +2,9 @@ import {Command} from '@oclif/core'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
 import {createInterface} from 'node:readline'
+import path, {dirname} from 'node:path'
+import {fileURLToPath} from 'node:url'
 import open from 'open'
-import path from 'node:path'
-import {dirname} from 'node:path'
-import {fileURLToPath} from 'url'
 
 import {fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest} from '../../util/index.js'
 
