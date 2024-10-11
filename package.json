@@ -82,7 +82,7 @@
   },
   "scripts": {
     "pack": "oclif pack tarballs --parallel --no-xz",
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist && tsc -b && shx cp src/commands/login/login.html dist/commands/login/login.html && shx cp src/commands/login/login.css dist/commands/login/login.css",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",

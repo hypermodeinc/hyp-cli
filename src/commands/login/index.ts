@@ -3,10 +3,14 @@ import * as fs from 'node:fs'
 import * as http from 'node:http'
 import {createInterface} from 'node:readline'
 import open from 'open'
+import path from 'node:path'
+import {dirname} from 'node:path'
+import {fileURLToPath} from 'url'
 
-import {
-  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
-} from '../../util/index.js'
+import {fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest} from '../../util/index.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default class LoginIndex extends Command {
   static override args = {}
@@ -34,8 +38,10 @@ export default class LoginIndex extends Command {
 
       if (jwt && email) {
         // Send response back to browser indicating success
-        res.writeHead(200, {'Content-Type': 'text/plain'})
-        res.end('Login successful! You can close this tab.')
+        const filePath = path.join(__dirname, 'login.html')
+        const content = fs.readFileSync(filePath, 'utf8')
+        res.writeHead(200, {'Content-Type': 'text/html'})
+        res.end(content)
 
         // Close the server once JWT and email are captured
         server.close()
@@ -99,18 +105,18 @@ export default class LoginIndex extends Command {
       const content = fs.readFileSync(envFilePath, 'utf8')
 
       // Check if the file contains HYP_JWT and HYP_EMAIL, if not add them
-      const updatedContent
-        = !content.includes('HYP_JWT=') || !content.includes('HYP_EMAIL=') || !content.includes('HYP_ORG_ID=')
+      const updatedContent =
+        !content.includes('HYP_JWT=') || !content.includes('HYP_EMAIL=') || !content.includes('HYP_ORG_ID=')
           ? content + `HYP_JWT=${jwt}\nHYP_EMAIL=${email}\nHYP_ORG_ID=${orgId}\n`
           : content
-          .split('\n')
-          .map(line => {
-            if (line.startsWith('HYP_JWT=')) return `HYP_JWT=${jwt}`
-            if (line.startsWith('HYP_EMAIL=')) return `HYP_EMAIL=${email}`
-            if (line.startsWith('HYP_ORG_ID=')) return `HYP_ORG_ID=${orgId}`
-            return line // Keep other lines unchanged
-          })
-          .join('\n')
+              .split('\n')
+              .map((line) => {
+                if (line.startsWith('HYP_JWT=')) return `HYP_JWT=${jwt}`
+                if (line.startsWith('HYP_EMAIL=')) return `HYP_EMAIL=${email}`
+                if (line.startsWith('HYP_ORG_ID=')) return `HYP_ORG_ID=${orgId}`
+                return line // Keep other lines unchanged
+              })
+              .join('\n')
 
       // delete the file
       fs.unlinkSync(envFilePath)
