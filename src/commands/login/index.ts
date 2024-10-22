@@ -6,7 +6,9 @@ import {createInterface} from 'node:readline'
 import {fileURLToPath} from 'node:url'
 import open from 'open'
 
-import {fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest} from '../../util/index.js'
+import {
+  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
+} from '../../util/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -95,35 +97,14 @@ export default class LoginIndex extends Command {
       fs.mkdirSync(envDir, {recursive: true})
     }
 
-    // Prepare the new content
-    const newEnvContent = `HYP_JWT=${jwt}\nHYP_EMAIL=${email}\nHYP_ORG_ID=${orgId}\n`
-
-    // Check if the .env.local file exists
-    if (fs.existsSync(envFilePath)) {
-      // Read existing content
-      const content = fs.readFileSync(envFilePath, 'utf8')
-
-      // Check if the file contains HYP_JWT and HYP_EMAIL, if not add them
-      const updatedContent =
-        !content.includes('HYP_JWT=') || !content.includes('HYP_EMAIL=') || !content.includes('HYP_ORG_ID=')
-          ? content + `HYP_JWT=${jwt}\nHYP_EMAIL=${email}\nHYP_ORG_ID=${orgId}\n`
-          : content
-              .split('\n')
-              .map((line) => {
-                if (line.startsWith('HYP_JWT=')) return `HYP_JWT=${jwt}`
-                if (line.startsWith('HYP_EMAIL=')) return `HYP_EMAIL=${email}`
-                if (line.startsWith('HYP_ORG_ID=')) return `HYP_ORG_ID=${orgId}`
-                return line // Keep other lines unchanged
-              })
-              .join('\n')
-
-      // delete the file
-      fs.unlinkSync(envFilePath)
-      // Write back the updated content
-      fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
-    } else {
-      // If the file doesn't exist, create it
-      fs.writeFileSync(envFilePath, newEnvContent, {flag: 'w'})
+    // Prepare the JSON object with the new content
+    const newEnvContent = {
+      HYP_EMAIL: email,
+      HYP_JWT: jwt,
+      HYP_ORG_ID: orgId,
     }
+
+    // Write the new content to the file, replacing any existing content
+    fs.writeFileSync(envFilePath, JSON.stringify(newEnvContent, null, 2), {flag: 'w'})
   }
 }

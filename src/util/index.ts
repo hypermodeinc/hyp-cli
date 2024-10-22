@@ -72,14 +72,14 @@ export function getEnvDir(): string {
 
 export function getEnvFilePath(): string {
   const envDir = getEnvDir()
-  return path.join(envDir, '.env.local')
+  return path.join(envDir, 'settings.json')
 }
 
 export function fileExists(filePath: string): boolean {
   return fs.existsSync(filePath)
 }
 
-export function readEnvFile(filePath: string): {
+export function readSettingsJson(filePath: string): {
   content: string
   email: null | string
   jwt: null | string
@@ -87,14 +87,18 @@ export function readEnvFile(filePath: string): {
 } {
   const content = fs.readFileSync(filePath, 'utf8')
 
-  const jwtMatch = content.match(/HYP_JWT=(.*)/)
-  const jwt = jwtMatch ? jwtMatch[1] : null
+  let email: null | string = null
+  let jwt: null | string = null
+  let orgId: null | string = null
 
-  const emailMatch = content.match(/HYP_EMAIL=(.*)/)
-  const email = emailMatch ? emailMatch[1] : null
-
-  const orgIdMatch = content.match(/HYP_ORG_ID=(.*)/)
-  const orgId = orgIdMatch ? orgIdMatch[1] : null
+  try {
+    const jsonContent = JSON.parse(content)
+    email = jsonContent.HYP_EMAIL || null
+    jwt = jsonContent.HYP_JWT || null
+    orgId = jsonContent.HYP_ORG_ID || null
+  } catch (error) {
+    console.error('Error parsing JSON content:', error)
+  }
 
   return {
     content, email, jwt, orgId,
