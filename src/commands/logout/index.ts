@@ -2,7 +2,7 @@ import {Command} from '@oclif/core'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
 
-import {fileExists, getEnvFilePath, readEnvFile} from '../../util/index.js'
+import {fileExists, getEnvFilePath, readSettingsJson} from '../../util/index.js'
 
 export default class LogoutIndex extends Command {
   static override args = {}
@@ -22,7 +22,7 @@ export default class LogoutIndex extends Command {
       return
     }
 
-    const res = readEnvFile(envFilePath)
+    const res = readSettingsJson(envFilePath)
 
     if (!res.email) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
@@ -31,18 +31,7 @@ export default class LogoutIndex extends Command {
 
     console.log('Logging out of email: ' + chalk.dim(res.email))
 
-    // Remove JWT and email from .env.local file
-    const updatedContent = res.content
-    .split('\n')
-    .map(line => {
-      if (line.startsWith('HYP_JWT') || line.startsWith('HYP_EMAIL') || line.startsWith('HYP_ORG_ID')) {
-        return ''
-      }
-
-      return line
-    })
-    .join('\n')
-
-    fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
+    // remove all content from settings.json
+    fs.writeFileSync(envFilePath, '{}', {flag: 'w'})
   }
 }

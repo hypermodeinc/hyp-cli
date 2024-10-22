@@ -4,7 +4,7 @@ import * as fs from 'node:fs'
 import {createInterface} from 'node:readline'
 
 import {
-  fileExists, getEnvFilePath, promptOrgSelection, readEnvFile, sendGraphQLRequest,
+  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson, sendGraphQLRequest,
 } from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
@@ -23,7 +23,7 @@ export default class OrgSwitch extends Command {
       return
     }
 
-    const res = readEnvFile(envFilePath)
+    const res = readSettingsJson(envFilePath)
 
     if (!res.email || !res.jwt || !res.orgId) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
@@ -38,18 +38,13 @@ export default class OrgSwitch extends Command {
     const orgs = await sendGraphQLRequest(res.jwt)
     const selectedOrg = await promptOrgSelection(rl, orgs)
 
-    const updatedContent = res.content
-    .split('\n')
-    .map(line => {
-      if (line.startsWith('HYP_ORG_ID')) {
-        return `HYP_ORG_ID=${selectedOrg.id}`
-      }
+    const updatedContent = {
+      HYP_EMAIL: res.email,
+      HYP_JWT: res.jwt,
+      HYP_ORG_ID: selectedOrg.id,
+    }
 
-      return line
-    })
-    .join('\n')
-
-    fs.writeFileSync(envFilePath, updatedContent.trim() + '\n', {flag: 'w'})
+    fs.writeFileSync(envFilePath, JSON.stringify(updatedContent, null, 2), {flag: 'w'})
 
     rl.close()
   }
