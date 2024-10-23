@@ -1,7 +1,7 @@
 {
   "name": "@hypermode/hyp-cli",
   "description": "The Hypermode CLI",
-  "version": "0.0.1-alpha.1",
+  "version": "",
   "author": "Hypermode Inc.",
   "homepage": "https://hypermode.com",
   "bin": {
