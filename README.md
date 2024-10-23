@@ -16,11 +16,11 @@ A new CLI for the Hypermode service
 
 <!-- usage -->
 ```sh-session
-$ npm install -g @hyp/cli
+$ npm install -g @hypermode/hyp-cli
 $ hyp COMMAND
 running command...
 $ hyp (--version)
-@hyp/cli/0.0.0 linux-x64 node-v22.8.0
+@hypermode/hyp-cli/0.0.1-alpha.1 darwin-arm64 node-v22.9.0
 $ hyp --help [COMMAND]
 USAGE
   $ hyp COMMAND
@@ -40,28 +40,28 @@ USAGE
 Login to Hypermode Console
 
 ```
-Usage: hyp login
+[1mUsage:[22m [1m[94mhyp[39m[22m login
 ```
 
-_See code: [src/commands/login/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.0/src/commands/login/index.ts)_
+_See code: [src/commands/login/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/login/index.ts)_
 
 ## `hyp logout`
 
 Logout of Hypermode Console in the CLI
 
 ```
-Usage: hyp logout
+[1mUsage:[22m [1m[94mhyp[39m[22m logout
 ```
 
-_See code: [src/commands/logout/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.0/src/commands/logout/index.ts)_
+_See code: [src/commands/logout/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/logout/index.ts)_
 
 ## `hyp org switch`
 
 Switch the current Hypermode organization
 
 ```
-Usage: hyp org:switch
+[1mUsage:[22m [1m[94mhyp[39m[22m org:switch
 ```
 
-_See code: [src/commands/org/switch.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.0/src/commands/org/switch.ts)_
+_See code: [src/commands/org/switch.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/org/switch.ts)_
 <!-- commandsstop -->
