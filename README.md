@@ -12,7 +12,7 @@ A new CLI for the Hypermode service
 * [Commands](#commands)
 <!-- tocstop -->
 
-# Usage
+## Usage
 
 <!-- usage -->
 ```sh-session
@@ -28,39 +28,39 @@ USAGE
 ```
 <!-- usagestop -->
 
-# Commands
+## Commands
 
 <!-- commands -->
 * [`hyp login`](#hyp-login)
 * [`hyp logout`](#hyp-logout)
 * [`hyp org switch`](#hyp-org-switch)
 
-## `hyp login`
+### `hyp login`
 
 Login to Hypermode Console
 
-```
-[1mUsage:[22m [1m[94mhyp[39m[22m login
+```sh
+hyp login
 ```
 
 _See code: [src/commands/login/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/login/index.ts)_
 
-## `hyp logout`
+### `hyp logout`
 
 Logout of Hypermode Console in the CLI
 
-```
-[1mUsage:[22m [1m[94mhyp[39m[22m logout
+```sh
+hyp logout
 ```
 
 _See code: [src/commands/logout/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/logout/index.ts)_
 
-## `hyp org switch`
+### `hyp org switch`
 
 Switch the current Hypermode organization
 
-```
-[1mUsage:[22m [1m[94mhyp[39m[22m org:switch
+```sh
+hyp org switch
 ```
 
 _See code: [src/commands/org/switch.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/org/switch.ts)_
