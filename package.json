@@ -3,6 +3,7 @@
   "description": "The Hypermode CLI",
   "version": "",
   "author": "Hypermode Inc.",
+  "license": "Apache-2.0",
   "homepage": "https://hypermode.com",
   "bin": {
     "hyp": "./bin/run.js"
