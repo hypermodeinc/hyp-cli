@@ -76,7 +76,7 @@ export default class CustomHelp extends Help {
     // out += "View the repo:" + " ".repeat(Math.max(1, this.pre_pad + this.post_pad - 12)) + chalk.blueBright("https://github.com/HypermodeInc/modus") + "\n";
 
     out += '\n'
-    out += 'Made with ♥︎ by ' + chalk.magentaBright('https://hypermode.com/')
+    out += 'Made with ♥︎ by Hypermode'
     return out
   }
 
