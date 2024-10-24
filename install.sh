@@ -9,7 +9,7 @@
 
 # Run with: curl install.hypermode.com/hyp.sh -sSfL | bash
 
-# Config
+# Config 
 CLI_NAME="Hyp CLI"
 PACKAGE_ORG="@hypermode"
 PACKAGE_NAME="hyp-cli"
