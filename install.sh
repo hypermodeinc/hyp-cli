@@ -10,6 +10,7 @@
 # Run with: curl install.hypermode.com/hyp.sh -sSfL | bash
 
 # Config
+CLI_NAME="Hyp CLI"
 PACKAGE_ORG="@hypermode"
 PACKAGE_NAME="hyp-cli"
 INSTALL_DIR="${HYP_CLI:-"$HOME/.hypermode/cli"}"
@@ -118,10 +119,10 @@ detect_profile() {
 build_path_str() {
   local profile="$1" install_dir="$2"
   if [[ $profile == *.fish ]]; then
-    echo -e "set -gx HYP_CLI \"$install_dir\"\nstring match -r \".hyp\" \"\$PATH\" > /dev/null; or set -gx PATH \"\$HYP_CLI/bin\" \$PATH"
+    echo -e "set -gx HYP_CLI \"$install_dir\"\nstring match -r \".hypermode\" \"\$PATH\" > /dev/null; or set -gx PATH \"\$HYP_CLI/bin\" \$PATH"
   else
     install_dir="${install_dir/#$HOME/\$HOME}"
-    echo -e "\n# Hyp CLI\nexport HYP_CLI=\"$install_dir\"\nexport PATH=\"\$HYP_CLI/bin:\$PATH\""
+    echo -e "\n# ${CLI_NAME}\nexport HYP_CLI=\"$install_dir\"\nexport PATH=\"\$HYP_CLI/bin:\$PATH\""
   fi
 }
 
@@ -137,7 +138,7 @@ cli_dir_valid() {
 update_profile() {
   local install_dir="$1"
   if [[ ":$PATH:" == *":$install_dir:"* ]]; then
-    printf "[3/4] ${DIM}The Hyp CLI is already in \$PATH${RESET}\n" >&2
+    printf "[3/4] ${DIM}The ${CLI_NAME} is already in \$PATH${RESET}\n" >&2
     return 0
   fi
 
@@ -151,14 +152,14 @@ update_profile() {
   export PROFILE="~/$(basename "$profile")"
 
   if grep -q 'HYP_CLI' "$profile"; then
-    printf "[3/4] ${DIM}The Hyp CLI has already been configured in ${PROFILE}${RESET}\n" >&2
+    printf "[3/4] ${DIM}The ${CLI_NAME} has already been configured in ${PROFILE}${RESET}\n" >&2
     return 0
   fi
 
   local path_str="$(build_path_str "$profile" "$install_dir")"
   echo "$path_str" >>"$profile"
 
-  printf "[3/4] ${DIM}Added the Hyp CLI to the PATH in ${PROFILE}${RESET}\n" >&2
+  printf "[3/4] ${DIM}Added the ${CLI_NAME} to the PATH in ${PROFILE}${RESET}\n" >&2
 }
 
 install_version() {
@@ -175,12 +176,12 @@ install_version() {
 
   install_release
   if [ "$?" == 0 ]; then
-    update_profile "$INSTALL_DIR" && printf "[4/4] ${DIM}Installed Hyp CLI${RESET}\n" >&2
+    update_profile "$INSTALL_DIR" && printf "[4/4] ${DIM}Installed the ${CLI_NAME}${RESET}\n" >&2
   fi
 }
 
 install_release() {
-  printf "[1/4] ${DIM}Downloading Hyp CLI from NPM${RESET}\n"
+  printf "[1/4] ${DIM}Downloading the ${CLI_NAME} from NPM${RESET}\n"
 
   local url="https://registry.npmjs.org/${PACKAGE_ORG:+$PACKAGE_ORG/}${PACKAGE_NAME}/-/${PACKAGE_NAME}-${VERSION}.tgz"
 
@@ -190,12 +191,12 @@ install_release() {
   )"
   exit_status="$?"
   if [ "$exit_status" != 0 ]; then
-    printf "Could not download Hyp version '$VERSION' from\n$url\n" >&2
+    printf "Could not download the ${CLI_NAME} version '$VERSION' from\n$url\n" >&2
     exit 1
   fi
 
   printf "$CLEAR_LINE" >&2
-  printf "[1/4] ${DIM}Downloaded latest Hyp CLI v${VERSION}${RESET}\n" >&2
+  printf "[1/4] ${DIM}Downloaded latest ${CLI_NAME} v${VERSION}${RESET}\n" >&2
 
   install_from_file "$download_archive"
 }
@@ -271,13 +272,13 @@ check_node() {
 }
 
 # This is the entry point
-printf "\n${BOLD}${BLUE}Hyp${RESET} Installer ${DIM}v${INSTALLER_VERSION}${RESET}\n\n" >&2
+printf "\n${BOLD}${BLUE}${CLI_NAME}${RESET} Installer ${DIM}v${INSTALLER_VERSION}${RESET}\n\n" >&2
 
 check_platform
 check_node
 install_version
 
-printf "\nThe Hyp CLI has been installed! 🎉\n" >&2
+printf "\nThe ${CLI_NAME} has been installed! 🎉\n" >&2
 
 if [ -n "${SHOW_RESET_PROFILE-}" ]; then
   printf "\n${YELLOW}Please restart your terminal or run:${RESET}\n" >&2
