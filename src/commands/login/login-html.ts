@@ -1,4 +1,4 @@
-<!-- src/commands/login/login.html -->
+export default `<!-- src/commands/login/login.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -48,3 +48,4 @@
     <p>You can now close this window and return to the terminal.</p>
   </body>
 </html>
+`

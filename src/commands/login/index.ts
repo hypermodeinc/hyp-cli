@@ -1,17 +1,14 @@
 import {Command} from '@oclif/core'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
-import path, {dirname} from 'node:path'
 import {createInterface} from 'node:readline'
-import {fileURLToPath} from 'node:url'
+import {URL} from 'node:url'
 import open from 'open'
 
 import {
   fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
 } from '../../util/index.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import loginHTML from './login-html.js'
 
 export default class LoginIndex extends Command {
   static override args = {}
@@ -39,10 +36,8 @@ export default class LoginIndex extends Command {
 
       if (jwt && email) {
         // Send response back to browser indicating success
-        const filePath = path.join(__dirname, 'login.html')
-        const content = fs.readFileSync(filePath, 'utf8')
         res.writeHead(200, {'Content-Type': 'text/html'})
-        res.end(content)
+        res.end(loginHTML)
 
         // Close the server once JWT and email are captured
         server.close()
