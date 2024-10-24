@@ -1,7 +1,6 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
-import {createInterface} from 'node:readline'
 
 import {
   fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson, sendGraphQLRequest,
@@ -30,13 +29,8 @@ export default class OrgSwitch extends Command {
       return
     }
 
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    })
-
     const orgs = await sendGraphQLRequest(res.jwt)
-    const selectedOrg = await promptOrgSelection(rl, orgs)
+    const selectedOrg = await promptOrgSelection(orgs)
 
     const updatedContent = {
       HYP_EMAIL: res.email,
@@ -45,7 +39,5 @@ export default class OrgSwitch extends Command {
     }
 
     fs.writeFileSync(envFilePath, JSON.stringify(updatedContent, null, 2), {flag: 'w'})
-
-    rl.close()
   }
 }

@@ -3,7 +3,7 @@ import * as inquirer from '@inquirer/prompts'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import {Interface, createInterface} from 'node:readline'
+import {Interface} from 'node:readline'
 import fetch from 'node-fetch'
 
 type Org = {
@@ -19,7 +19,7 @@ export function ask(question: string, rl: Interface, placeholder?: string): Prom
   })
 }
 
-export async function promptOrgSelection(rl: ReturnType<typeof createInterface>, orgs: Org[]): Promise<Org> {
+export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   const choices = orgs.map(org => ({
     name: org.slug,
     value: org,

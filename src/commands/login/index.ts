@@ -1,7 +1,7 @@
 import {Command} from '@oclif/core'
+import chalk from 'chalk'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
-import {createInterface} from 'node:readline'
 import {URL} from 'node:url'
 import open from 'open'
 
@@ -73,7 +73,7 @@ export default class LoginIndex extends Command {
   public async openLoginPage() {
     // Open the Hypermode sign-in page in the default browser
     const loginUrl = 'https://hypermode.com/app/callback?port=5051&type=cli'
-    await open(loginUrl)
+    await open(loginUrl, {wait: false})
   }
 
   public async run(): Promise<void> {
@@ -90,23 +90,16 @@ export default class LoginIndex extends Command {
         res.writeHead(200, {'Content-Type': 'text/html'})
         res.end(loginHTML)
 
-        // Close the server once JWT and email are captured
+        // Close the server once JWT and eamail are captured
         server.close()
 
-        const rl = createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        })
-
         const orgs = await sendGraphQLRequest(jwt)
-        const selectedOrg = await promptOrgSelection(rl, orgs)
+        const selectedOrg = await promptOrgSelection(orgs)
         // Store JWT and email securely
         this.writeToEnvFile(jwt, email, selectedOrg.id)
 
         // Confirm successful login in the CLI
-        this.log('Successfully logged in as ' + email + '! 🎉')
-
-        rl.close()
+        this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
       } else {
         // Respond with an error if JWT or email is missing
         res.writeHead(400, {'Content-Type': 'text/plain'})
