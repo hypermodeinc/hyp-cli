@@ -3,8 +3,6 @@ import chalk from 'chalk'
 
 import {getHeader} from './header.js'
 
-const CLI_VERSION = '0.0.0'
-
 export default class CustomHelp extends Help {
   private postPad = 0
   private prePad = 0
@@ -54,7 +52,7 @@ export default class CustomHelp extends Help {
   formatRoot(): string {
     let out = ''
     out
-      += chalk.bold.blueBright('Hypermode') + ' - Build Intelligent APIs. ' + chalk.dim('(v' + CLI_VERSION + ')') + '\n\n'
+      += chalk.bold.blueBright('Hypermode') + ' - Build Intelligent APIs. \n\n'
 
     // Usage: hyp <command> [...flags] [...args]
     out
@@ -78,13 +76,13 @@ export default class CustomHelp extends Help {
     // out += "View the repo:" + " ".repeat(Math.max(1, this.pre_pad + this.post_pad - 12)) + chalk.blueBright("https://github.com/HypermodeInc/modus") + "\n";
 
     out += '\n'
-    out += 'Made with 💖 by ' + chalk.magentaBright('https://hypermode.com/')
+    out += 'Made with ♥︎ by Hypermode'
     return out
   }
 
   formatTopic(topic: Interfaces.Topic): string {
     let out = ''
-    out += chalk.bold.blueBright('Hypermode') + ' Help ' + chalk.dim('(v' + CLI_VERSION + ')') + '\n\n'
+    out += chalk.bold.blueBright('Hypermode') + ' Help \n\n'
     if (topic.description) out += chalk.dim(topic.description) + '\n'
 
     out += chalk.bold('Usage: hyp ' + topic.name) + ' ' + chalk.bold.blue('[command]') + '\n'

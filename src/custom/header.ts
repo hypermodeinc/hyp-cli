@@ -13,7 +13,7 @@ export function getHeader(cliVersion: string): string {
   let out = ''
   out += getLogo()
   out += '\n'
-  out += `Modus CLI v${cliVersion}`
+  out += `Hypermode CLI v${cliVersion}`
   out += '\n'
   return out
 }
