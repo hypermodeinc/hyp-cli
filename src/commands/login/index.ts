@@ -8,7 +8,58 @@ import open from 'open'
 import {
   fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
 } from '../../util/index.js'
-import loginHTML from './login-html.js'
+
+const loginHTML = `<!-- src/commands/login/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        margin: 0;
+        background-color: #14161f;
+      }
+      h1 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      p {
+        color: #62646b;
+        text-align: center;
+      }
+
+      svg {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="#fff"
+        d="M10.0173 0H2.64764L0 10.3598H7.36967L10.0173 0ZM2.91136 22.6282L6.0172 10.3599H14.1776L16.8252 0.00012207H24.1949L18.3248 22.9691H10.9551L14.1592 10.4317L2.91136 22.6282Z"
+      />
+    </svg>
+    <h1>Authentication complete!</h1>
+    <p>You can now close this window and return to the terminal.</p>
+  </body>
+</html>
+`
 
 export default class LoginIndex extends Command {
   static override args = {}
