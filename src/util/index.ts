@@ -1,3 +1,5 @@
+import {ExitPromptError} from '@inquirer/core'
+import * as inquirer from '@inquirer/prompts'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -18,23 +20,23 @@ export function ask(question: string, rl: Interface, placeholder?: string): Prom
 }
 
 export async function promptOrgSelection(rl: ReturnType<typeof createInterface>, orgs: Org[]): Promise<Org> {
-  console.log('Please select an organization:')
-  for (const [index, org] of orgs.entries()) {
-    console.log(chalk.dim(`${index + 1}. ${org.slug}`))
+  const choices = orgs.map(org => ({
+    name: org.slug,
+    value: org,
+  }))
+  try {
+    const selectedOrg = await inquirer.select({
+      choices,
+      message: 'Please select an organization:',
+    })
+
+    console.log(`Selected organization: ${chalk.dim(selectedOrg.slug)}`)
+
+    return selectedOrg
+  } catch (error) {
+    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red('Organization selection prompt exited.')) : error
+    throw error_
   }
-
-  const selectedIndex = Number.parseInt(((await ask(chalk.dim('-> '), rl)) || '1').trim(), 10) - 1
-
-  const org = orgs[selectedIndex]
-
-  if (!org) {
-    console.log(chalk.red('Invalid selection. Please try again.'))
-    return promptOrgSelection(rl, orgs)
-  }
-
-  console.log(`Selected organization: ${chalk.dim(org.slug)}`)
-
-  return org
 }
 
 export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {

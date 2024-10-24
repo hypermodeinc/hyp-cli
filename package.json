@@ -11,6 +11,8 @@
   "repository": "github:hypermodeinc/hyp-cli",
   "bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
   "dependencies": {
+    "@inquirer/core": "^10.0.0",
+    "@inquirer/prompts": "^7.0.0",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
