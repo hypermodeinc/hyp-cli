@@ -1,6 +1,8 @@
 import {Command, Help, Interfaces} from '@oclif/core'
 import chalk from 'chalk'
 
+import {getHeader} from './header.js'
+
 const CLI_VERSION = '0.0.0'
 
 export default class CustomHelp extends Help {
@@ -43,6 +45,10 @@ export default class CustomHelp extends Help {
     }
 
     return out.trim()
+  }
+
+  formatHeader(): string {
+    return getHeader(this.config.version)
   }
 
   formatRoot(): string {
@@ -104,6 +110,7 @@ export default class CustomHelp extends Help {
   }
 
   async showCommandHelp(command: Command.Loadable): Promise<void> {
+    this.log(this.formatHeader())
     const margin = 20
     const name = command.id.replaceAll(':', ' ')
     const args = Object.keys(command.args)
@@ -149,6 +156,7 @@ export default class CustomHelp extends Help {
   }
 
   async showRootHelp(): Promise<void> {
+    this.log(this.formatHeader())
     let rootTopics = this.sortedTopics
     let rootCommands = this.sortedCommands
     const state = this.config.pjson?.oclif?.state
@@ -201,6 +209,7 @@ export default class CustomHelp extends Help {
   }
 
   async showTopicHelp(topic: Interfaces.Topic) {
+    this.log(this.formatHeader())
     const {name} = topic
     const commands = this.sortedCommands.filter(c => c.id.startsWith(name + ':'))
     for (const command of commands) {
