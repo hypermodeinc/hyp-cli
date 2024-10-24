@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/commands/login/index.ts","./src/commands/logout/index.ts","./src/commands/org/switch.ts","./src/custom/help.ts","./src/util/index.ts"],"version":"5.6.2"}
+{"root":["./src/index.ts","./src/commands/login/index.ts","./src/commands/login/login-html.ts","./src/commands/logout/index.ts","./src/commands/org/switch.ts","./src/custom/help.ts","./src/util/index.ts"],"version":"5.6.2"}
