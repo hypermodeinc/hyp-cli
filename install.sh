@@ -12,7 +12,7 @@
 # Config
 PACKAGE_ORG="@hypermode"
 PACKAGE_NAME="hyp-cli"
-INSTALL_DIR="${HYP_CLI:-"$HOME/.hyp/cli"}"
+INSTALL_DIR="${HYP_CLI:-"$HOME/.hypermode/cli"}"
 VERSION="latest"
 INSTALLER_VERSION="0.1.1"
 
