@@ -73,7 +73,7 @@ export default class LoginIndex extends Command {
   public async openLoginPage() {
     // Open the Hypermode sign-in page in the default browser
     const loginUrl = 'https://hypermode.com/app/callback?port=5051&type=cli'
-    await open(loginUrl, {wait: false})
+    await open(loginUrl)
   }
 
   public async run(): Promise<void> {
