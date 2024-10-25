@@ -77,58 +77,78 @@ export default class LoginIndex extends Command {
   }
 
   public async run(): Promise<void> {
-    // Start a local server to capture JWT and email from redirect
-    const server = http.createServer(async (req, res) => {
-      const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+    return new Promise((resolve, reject) => {
+      const server = http.createServer(async (req, res) => {
+        try {
+          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+          const jwt = url.searchParams.get('jwt')
+          const email = url.searchParams.get('email')
 
-      // Extract the JWT and email from query parameters
-      const jwt = url.searchParams.get('jwt')
-      const email = url.searchParams.get('email')
-      try {
-        if (jwt && email) {
-        // Send response back to browser indicating success
+          if (!jwt || !email) {
+            res.writeHead(400, {'Content-Type': 'text/plain'})
+            res.end('JWT or email not found in the request.')
+            return
+          }
+
           res.writeHead(200, {'Content-Type': 'text/html'})
           res.end(loginHTML)
 
-          const orgs = await sendGraphQLRequest(jwt)
-          const selectedOrg = await promptOrgSelection(orgs)
-          // Store JWT and email securely
-          await this.writeToEnvFile(jwt, email, selectedOrg.id)
+          // Close all existing connections
+          server.closeAllConnections()
 
-          // Confirm successful login in the CLI
-          this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
-        } else {
-        // Respond with an error if JWT or email is missing
-          res.writeHead(400, {'Content-Type': 'text/plain'})
-          res.end('JWT or email not found in the request.')
+          // Close the server and wait for it to actually close
+          server.close(async err => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            try {
+              const orgs = await sendGraphQLRequest(jwt)
+              const selectedOrg = await promptOrgSelection(orgs)
+              this.writeToEnvFile(jwt, email, selectedOrg.id)
+              this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
+              resolve()
+            } catch (error) {
+              reject(error)
+            }
+          })
+        } catch (error) {
+          res.writeHead(500, {'Content-Type': 'text/plain'})
+          res.end('An error occurred during authentication.')
+          reject(error)
         }
-      } catch {
-        // Respond with an error if an error occurs
-        res.writeHead(500, {'Content-Type': 'text/plain'})
-        res.end('An error occurred during authentication.')
-      } finally {
-        server.unref()
+      })
+
+      // Set a timeout for the server
+      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeout = setTimeout(() => {
+        server.closeAllConnections()
         server.close()
-      }
-    })
+        reject(new Error('Authentication timed out. Please try again.'))
+      }, timeoutDuration)
 
-    // Set a timeout for the server
-    const timeoutDuration = 300_000 // 300 seconds in milliseconds
-    const timeout = setTimeout(() => {
-      server.close()
-      throw new Error('Authentication timed out. Please try again.')
-    }, timeoutDuration)
+      // Listen on port 5051 for the redirect
+      server.listen(5051, 'localhost', async () => {
+        try {
+          this.log('Opening login page...')
+          await this.openLoginPage()
+        } catch (error) {
+          server.close()
+          reject(error)
+        }
+      })
 
-    // Listen on port 5051 for the redirect
-    server.listen(5051, 'localhost', () => {
-      // Open the Hypermode sign-in page in the default browser
-      this.log('Opening login page...')
-      this.openLoginPage()
-    })
+      // Ensure the timeout is cleared if the server closes successfully
+      server.on('close', () => {
+        clearTimeout(timeout)
+      })
 
-    // Ensure the timeout is cleared if the server closes successfully
-    server.on('close', async () => {
-      clearTimeout(timeout)
+      // Handle server errors
+      server.on('error', error => {
+        clearTimeout(timeout)
+        reject(error)
+      })
     })
   }
 
