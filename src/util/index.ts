@@ -30,8 +30,6 @@ export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
       message: 'Please select an organization:',
     })
 
-    console.log(`Selected organization: ${chalk.dim(selectedOrg.slug)}`)
-
     return selectedOrg
   } catch (error) {
     const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red('Organization selection prompt exited.')) : error
