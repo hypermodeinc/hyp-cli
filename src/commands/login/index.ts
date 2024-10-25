@@ -84,26 +84,30 @@ export default class LoginIndex extends Command {
       // Extract the JWT and email from query parameters
       const jwt = url.searchParams.get('jwt')
       const email = url.searchParams.get('email')
-
-      if (jwt && email) {
+      try {
+        if (jwt && email) {
         // Send response back to browser indicating success
-        res.writeHead(200, {'Content-Type': 'text/html'})
-        res.end(loginHTML)
+          res.writeHead(200, {'Content-Type': 'text/html'})
+          res.end(loginHTML)
 
-        // Close the server once JWT and eamail are captured
-        server.close()
+          const orgs = await sendGraphQLRequest(jwt)
+          const selectedOrg = await promptOrgSelection(orgs)
+          // Store JWT and email securely
+          await this.writeToEnvFile(jwt, email, selectedOrg.id)
 
-        const orgs = await sendGraphQLRequest(jwt)
-        const selectedOrg = await promptOrgSelection(orgs)
-        // Store JWT and email securely
-        this.writeToEnvFile(jwt, email, selectedOrg.id)
-
-        // Confirm successful login in the CLI
-        this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
-      } else {
+          // Confirm successful login in the CLI
+          this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
+        } else {
         // Respond with an error if JWT or email is missing
-        res.writeHead(400, {'Content-Type': 'text/plain'})
-        res.end('JWT or email not found in the request.')
+          res.writeHead(400, {'Content-Type': 'text/plain'})
+          res.end('JWT or email not found in the request.')
+        }
+      } catch {
+        // Respond with an error if an error occurs
+        res.writeHead(500, {'Content-Type': 'text/plain'})
+        res.end('An error occurred during authentication.')
+      } finally {
+        server.close()
       }
     })
 
