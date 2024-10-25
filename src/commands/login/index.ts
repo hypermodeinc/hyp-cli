@@ -107,6 +107,7 @@ export default class LoginIndex extends Command {
         res.writeHead(500, {'Content-Type': 'text/plain'})
         res.end('An error occurred during authentication.')
       } finally {
+        server.unref()
         server.close()
       }
     })
