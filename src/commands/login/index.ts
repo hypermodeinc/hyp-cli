@@ -6,7 +6,7 @@ import {URL} from 'node:url'
 import open from 'open'
 
 import {
-  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGraphQLRequest,
+  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGetOrgsGraphQLRequest,
 } from '../../util/index.js'
 
 const loginHTML = `<!-- src/commands/login/login.html -->
@@ -104,7 +104,7 @@ export default class LoginIndex extends Command {
             }
 
             try {
-              const orgs = await sendGraphQLRequest(jwt)
+              const orgs = await sendGetOrgsGraphQLRequest(jwt)
               const selectedOrg = await promptOrgSelection(orgs)
               this.writeToEnvFile(jwt, email, selectedOrg.id)
               this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')

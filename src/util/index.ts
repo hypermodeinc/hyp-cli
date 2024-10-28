@@ -8,7 +8,14 @@ import fetch from 'node-fetch'
 
 type Org = {
   id: string
+  projects: Project[]
   slug: string
+}
+
+type Project = {
+  id: string
+  name: string
+  repoId: null | string
 }
 
 export function ask(question: string, rl: Interface, placeholder?: string): Promise<string> {
@@ -37,20 +44,48 @@ export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   }
 }
 
-export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {
+export async function promptProjectLinkSelection(projects: Project[]): Promise<Project> {
+  const choices = projects.map(project => ({
+    name: project.name,
+    value: project,
+  }))
+  try {
+    const selectedProject = await inquirer.select({
+      choices,
+      message: 'Please select a project to link:',
+    })
+
+    return selectedProject
+  } catch (error) {
+    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red('Project selection prompt exited.')) : error
+    throw error_
+  }
+}
+
+export async function promptProjectName(projects: Project[]): Promise<string> {
+  const projectName = await inquirer.input({
+    message: 'Please enter a project name:',
+  })
+
+  // check if project name already exists in projects
+  const projectNames = projects.map(project => project.name)
+  if (projectNames.includes(projectName)) {
+    // re-prompt for project name
+    console.log(chalk.red('Project name already exists.'))
+    return promptProjectName(projects)
+  }
+
+  return projectName
+}
+
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export async function sendGraphQLReqToHypermode(jwt: string, query: string): Promise<any> {
   const url = 'https://api.hypermode.com/graphql'
-  const query = `
-    query GetOrgs {
-      getOrgs {
-          id
-          slug
-      }
-  }`
 
   const options = {
     body: JSON.stringify({query}),
     headers: {
-      Authorization: `${jwt}`,
+      Authorization: `"${jwt}"`,
       'Content-Type': 'application/json',
     },
     method: 'POST',
@@ -60,10 +95,99 @@ export async function sendGraphQLRequest(jwt: string): Promise<Org[]> {
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await response.json()
+  return data
+}
+
+export async function sendCreateProjectRepoGraphQLRequest(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
+  const query = `
+  mutation CreateProjectRepo {
+    createProject(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: "CUSTOM"}) {
+        id
+        name
+        repoId
+    }
+  }`
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = await sendGraphQLReqToHypermode(jwt, query)
+
+  const project: Project = data.data.createProject
+
+  return project
+}
+
+export async function sendCreateProjectGraphQLRequest(jwt: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
+  const query = `
+  mutation CreateProjectBranchBackend {
+    createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", projectName: "${projectName}", repoId: "${repoId}", repoName: "${repoName}", sourceType: "CUSTOM"}
+    ) {
+        id
+        name
+        repoId
+    }
+  }`
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = await sendGraphQLReqToHypermode(jwt, query)
+
+  const project: Project = data.data.createProjectBranchBackend
+
+  return project
+}
+
+export async function sendGetOrgsGraphQLRequest(jwt: string): Promise<Org[]> {
+  const query = `
+    query GetOrgs {
+      getOrgs {
+          id
+          slug
+      }
+  }`
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   const orgs: Org[] = data.data.getOrgs
 
   return orgs
+}
+
+export async function getProjectsByOrgGraphQLRequest(jwt: string, orgId: string): Promise<Project[]> {
+  const query = `
+    query GetProjectsByOrg {
+      getOrg(id: "${orgId}") {
+          id
+          projects {
+              id
+              name
+              repoId
+          }
+      }
+  }`
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = await sendGraphQLReqToHypermode(jwt, query)
+
+  // eslint-disable-next-line prefer-destructuring
+  const projects: Project[] = data.data.getOrg.projects
+
+  return projects
+}
+
+export function sendGetRepoIdGraphQLRequest(jwt: string, installationId: string, gitUrl: string): Promise<string> {
+  const query = `
+    query getUserRepoIdByUrl {
+      getRepoId(installationId: "${installationId}", gitUrl: "${gitUrl}")
+      }`
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const data: any = sendGraphQLReqToHypermode(jwt, query)
+
+  if (!data.data.getRepoId) {
+    throw new Error('No repoId found for the given installationId and gitUrl')
+  }
+
+  return data.data.getRepoId
 }
 
 export function getEnvDir(): string {
@@ -79,9 +203,28 @@ export function fileExists(filePath: string): boolean {
   return fs.existsSync(filePath)
 }
 
+export function getGitDir(): string {
+  return path.join(process.cwd(), '.git')
+}
+
+export function getGitConfigFilePath(): string {
+  return path.join(getGitDir(), 'config')
+}
+
+export function getGitRemoteUrl(filePath: string): string {
+  const content = fs.readFileSync(filePath, 'utf8')
+  const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/)
+  if (!remoteMatch) {
+    throw new Error('No remote origin found in .git/config')
+  }
+
+  return remoteMatch[1]
+}
+
 export function readSettingsJson(filePath: string): {
   content: string
   email: null | string
+  installationIds: { [key: string]: string } | null
   jwt: null | string
   orgId: null | string
 } {
@@ -90,17 +233,19 @@ export function readSettingsJson(filePath: string): {
   let email: null | string = null
   let jwt: null | string = null
   let orgId: null | string = null
+  let installationIds: { [key: string]: string } | null = null
 
   try {
     const jsonContent = JSON.parse(content)
     email = jsonContent.HYP_EMAIL || null
     jwt = jsonContent.HYP_JWT || null
     orgId = jsonContent.HYP_ORG_ID || null
+    installationIds = jsonContent.INSTALLATION_IDS || null
   } catch (error) {
     console.error('Error parsing JSON content:', error)
   }
 
   return {
-    content, email, jwt, orgId,
+    content, email, installationIds, jwt, orgId,
   }
 }

@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import * as fs from 'node:fs'
 
 import {
-  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson, sendGraphQLRequest,
+  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson, sendGetOrgsGraphQLRequest,
 } from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
@@ -29,7 +29,7 @@ export default class OrgSwitch extends Command {
       return
     }
 
-    const orgs = await sendGraphQLRequest(res.jwt)
+    const orgs = await sendGetOrgsGraphQLRequest(res.jwt)
     const selectedOrg = await promptOrgSelection(orgs)
 
     const updatedContent = {
