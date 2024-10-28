@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import {ExitPromptError} from '@inquirer/core'
 import * as inquirer from '@inquirer/prompts'
 import chalk from 'chalk'

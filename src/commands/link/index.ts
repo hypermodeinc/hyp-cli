@@ -21,7 +21,7 @@ export default class LinkIndex extends Command {
     const gitConfigFilePath = getGitConfigFilePath()
 
     if (!fileExists(gitConfigFilePath)) {
-      throw new Error('No .git/config file found, please set up a remote git repository')
+      throw new Error('No `.git/config` file found, please set up a remote git repository')
     }
 
     const gitUrl = getGitRemoteUrl(gitConfigFilePath)
