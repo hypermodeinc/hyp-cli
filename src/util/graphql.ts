@@ -102,15 +102,15 @@ export async function getProjectsByOrgReq(jwt: string, orgId: string): Promise<P
 export function sendGetRepoIdReq(jwt: string, installationId: string, gitUrl: string): Promise<string> {
   const query = `
       query getUserRepoIdByUrl {
-        getRepoId(installationId: "${installationId}", gitUrl: "${gitUrl}")
+        getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
         }`
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = sendGraphQLReqToHypermode(jwt, query)
 
-  if (!data.data.getRepoId) {
+  if (!data.data.getUserRepoIdByUrl) {
     throw new Error('No repoId found for the given installationId and gitUrl')
   }
 
-  return data.data.getRepoId
+  return data.data.getUserRepoIdByUrl
 }

@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import * as fs from 'node:fs'
 import * as http from 'node:http'
 import {URL} from 'node:url'
+import open from 'open'
 
 import {ciStr} from '../../util/ci.js'
 import {
@@ -24,10 +25,78 @@ export default class LinkIndex extends Command {
 
   static override flags = {}
 
-  public openLinkPage() {
+  public async getUserInstallationThroughAuthFlow(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const server = http.createServer(async (req, res) => {
+        try {
+          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+          const installationId = url.searchParams.get('install_id')
+
+          if (!installationId) {
+            res.writeHead(400, {'Content-Type': 'text/plain'})
+            res.end('Installation ID not found in the request.')
+            return
+          }
+
+          res.writeHead(200, {'Content-Type': 'text/html'})
+          res.end(linkHTML)
+
+          // Close all existing connections
+          server.closeAllConnections()
+
+          // Close the server and wait for it to actually close
+          server.close(async err => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve(installationId)
+          })
+        } catch (error) {
+          res.writeHead(500, {'Content-Type': 'text/plain'})
+          res.end('An error occurred during authentication.')
+          reject(error)
+        }
+      })
+
+      // Set a timeout for the server
+      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeout = setTimeout(() => {
+        server.closeAllConnections()
+        server.close()
+        reject(new Error('Authentication timed out. Please try again.'))
+      }, timeoutDuration)
+
+      // Listen on port 5051 for the redirect
+      server.listen(5051, 'localhost', async () => {
+        try {
+          this.log('Opening link page...')
+          await this.openLinkPage()
+        } catch (error) {
+          server.close()
+          reject(error)
+        }
+      })
+
+      // Ensure the timeout is cleared if the server closes successfully
+      server.on('close', () => {
+        clearTimeout(timeout)
+      })
+
+      // Handle server errors
+      server.on('error', error => {
+        clearTimeout(timeout)
+        reject(error)
+      })
+    })
+  }
+
+  public async openLinkPage() {
     // Open the Hypermode sign-in page in the default browser
-    const linkUrl = 'https://github.com/apps/hypermode/installations/select_target?port=5051&source=cli'
-    open(linkUrl)
+    const state = encodeURIComponent(JSON.stringify({p: 5051, s: 'cli'}))
+    const linkUrl = 'https://github.com/apps/hypermode/installations/new?state=' + state
+    await open(linkUrl)
   }
 
   public async run(): Promise<void> {
@@ -60,85 +129,7 @@ export default class LinkIndex extends Command {
 
     const repoName = gitUrl.split('/')[4]
 
-    let installationId = ''
-
-    if (!settings.installationIds || !settings.installationIds[gitOwner]) {
-      // github app installation flow here
-      const server = http.createServer(async (req, res) => {
-        try {
-          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
-          const installationId = url.searchParams.get('installation_id')
-
-          if (!installationId) {
-            res.writeHead(400, {'Content-Type': 'text/plain'})
-            res.end('Installation ID not found in the request.')
-            return
-          }
-
-          res.writeHead(200, {'Content-Type': 'text/html'})
-          res.end(linkHTML)
-
-          // Close all existing connections
-          server.closeAllConnections()
-
-          // Close the server and wait for it to actually close
-          server.close(async err => {
-            if (err) {
-              throw err
-            }
-
-            const newInstallationIds = {
-              ...settings.installationIds,
-              [gitOwner]: installationId,
-            }
-
-            const newSettings = {
-              ...settings,
-              installationIds: newInstallationIds,
-            }
-
-            fs.writeFileSync(envFilePath, JSON.stringify(newSettings, null, 2), {flag: 'w'})
-            settings.installationIds = newInstallationIds
-          })
-        } catch (error) {
-          res.writeHead(500, {'Content-Type': 'text/plain'})
-          res.end('An error occurred during authentication.')
-          throw error
-        }
-      })
-
-      // Set a timeout for the server
-      const timeoutDuration = 300_000 // 300 seconds in milliseconds
-      const timeout = setTimeout(() => {
-        server.closeAllConnections()
-        server.close()
-        throw new Error('Authentication timed out. Please try again.')
-      }, timeoutDuration)
-
-      // Listen on port 5051 for the redirect
-      server.listen(5051, 'localhost', () => {
-        try {
-          this.log('Opening link page...')
-          this.openLinkPage()
-        } catch (error) {
-          server.close()
-          throw error
-        }
-      })
-
-      // Ensure the timeout is cleared if the server closes successfully
-      server.on('close', () => {
-        clearTimeout(timeout)
-      })
-
-      // Handle server errors
-      server.on('error', error => {
-        clearTimeout(timeout)
-        throw error
-      })
-    } else  {
-      installationId = settings.installationIds[gitOwner]
-    }
+    const installationId = (!settings.installationIds || !settings.installationIds[gitOwner]) ? await this.getUserInstallationThroughAuthFlow() : settings.installationIds[gitOwner]
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
     const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl)
