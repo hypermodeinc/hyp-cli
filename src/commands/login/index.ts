@@ -5,8 +5,9 @@ import * as http from 'node:http'
 import {URL} from 'node:url'
 import open from 'open'
 
+import {sendGetOrgsReq} from '../../util/graphql.js'
 import {
-  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, sendGetOrgsGraphQLRequest,
+  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, readSettingsJson,
 } from '../../util/index.js'
 
 const loginHTML = `<!-- src/commands/login/login.html -->
@@ -104,7 +105,7 @@ export default class LoginIndex extends Command {
             }
 
             try {
-              const orgs = await sendGetOrgsGraphQLRequest(jwt)
+              const orgs = await sendGetOrgsReq(jwt)
               const selectedOrg = await promptOrgSelection(orgs)
               this.writeToEnvFile(jwt, email, selectedOrg.id)
               this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
@@ -161,11 +162,14 @@ export default class LoginIndex extends Command {
       fs.mkdirSync(envDir, {recursive: true})
     }
 
+    const res = readSettingsJson(envFilePath)
+
     // Prepare the JSON object with the new content
     const newEnvContent = {
       HYP_EMAIL: email,
       HYP_JWT: jwt,
       HYP_ORG_ID: orgId,
+      INSTALLATION_IDS: res.installationIds,
     }
 
     // Write the new content to the file, replacing any existing content

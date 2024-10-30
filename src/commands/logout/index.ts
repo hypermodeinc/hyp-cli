@@ -31,7 +31,14 @@ export default class LogoutIndex extends Command {
 
     console.log('Logging out of email: ' + chalk.dim(res.email))
 
+    const newEnvContent = {
+      HYP_EMAIL: null,
+      HYP_JWT: null,
+      HYP_ORG_ID: null,
+      INSTALLATION_IDS: res.installationIds,
+    }
+
     // remove all content from settings.json
-    fs.writeFileSync(envFilePath, '{}', {flag: 'w'})
+    fs.writeFileSync(envFilePath, JSON.stringify(newEnvContent, null, 2), {flag: 'w'})
   }
 }

@@ -1,8 +1,14 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
+import * as fs from 'node:fs'
 
+import {ciStr} from '../../util/ci.js'
 import {
-  fileExists, getEnvFilePath, getGitConfigFilePath, getGitRemoteUrl, getProjectsByOrgGraphQLRequest, promptProjectLinkSelection, promptProjectName, readSettingsJson, sendCreateProjectGraphQLRequest, sendCreateProjectRepoGraphQLRequest, sendGetRepoIdGraphQLRequest,
+  getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq,
+} from '../../util/graphql.js'
+import {
+  confirmExistingProjectLink, fileExists, getCiHypFilePath, getEnvFilePath, getGitConfigFilePath,
+  getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson,
 } from '../../util/index.js'
 
 export default class LinkIndex extends Command {
@@ -21,7 +27,7 @@ export default class LinkIndex extends Command {
     const gitConfigFilePath = getGitConfigFilePath()
 
     if (!fileExists(gitConfigFilePath)) {
-      throw new Error('No `.git/config` file found, please set up a remote git repository')
+      throw new Error('No remote git repository found')
     }
 
     const gitUrl = getGitRemoteUrl(gitConfigFilePath)
@@ -55,7 +61,7 @@ export default class LinkIndex extends Command {
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdGraphQLRequest(res.jwt, installationId, gitUrl)
+    const repoId = await sendGetRepoIdReq(res.jwt, installationId, gitUrl)
 
     if (!repoId) {
       throw new Error('No repoId found for the given installationId and gitUrl')
@@ -63,24 +69,45 @@ export default class LinkIndex extends Command {
 
     // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
     // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
-    const projects = await getProjectsByOrgGraphQLRequest(res.jwt, res.orgId)
+    const projects = await getProjectsByOrgReq(res.jwt, res.orgId)
 
     const projectsNoRepoId = projects.filter(project => !project.repoId)
 
     let selectedProject = null
 
     if (projectsNoRepoId.length > 0) {
-      selectedProject = await promptProjectLinkSelection(projectsNoRepoId)
-      const completedProject = await sendCreateProjectRepoGraphQLRequest(res.jwt, selectedProject.id, repoId, repoName)
+      const confirmExistingProject = await confirmExistingProjectLink()
 
-      this.log(chalk.green('Successfully linked project ' + completedProject.name + ' to repo ' + repoName + '! 🎉'))
+      if (confirmExistingProject) {
+        selectedProject = await promptProjectLinkSelection(projectsNoRepoId)
+        const completedProject = await sendCreateProjectRepoReq(res.jwt, selectedProject.id, repoId, repoName)
+
+        this.log(chalk.green('Successfully linked project ' + completedProject.name + ' to repo ' + repoName + '! 🎉'))
+      } else {
+        const projectName = await promptProjectName(projects)
+        const newProject = await sendCreateProjectReq(res.jwt, res.orgId, projectName, repoId, repoName)
+
+        this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
+      }
     } else {
       const projectName = await promptProjectName(projects)
-      const newProject = await sendCreateProjectGraphQLRequest(res.jwt, res.orgId, projectName, repoId, repoName)
+      const newProject = await sendCreateProjectReq(res.jwt, res.orgId, projectName, repoId, repoName)
 
       this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
     }
 
     // add ci workflow to the repo if it doesn't already exist
+    const githubWorkflowDir = getGithubWorkflowDir()
+    const ciHypFilePath = getCiHypFilePath()
+
+    if (!fileExists(githubWorkflowDir)) {
+      // create the directory
+      fs.mkdirSync(githubWorkflowDir, {recursive: true})
+    }
+
+    if (!fileExists(ciHypFilePath)) {
+      // create the file
+      fs.writeFileSync(ciHypFilePath, JSON.stringify(ciStr, null, 2), {flag: 'w'})
+    }
   }
 }
