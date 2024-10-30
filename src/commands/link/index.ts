@@ -24,10 +24,10 @@ export default class LinkIndex extends Command {
 
   static override flags = {}
 
-  public async openLinkPage() {
+  public openLinkPage() {
     // Open the Hypermode sign-in page in the default browser
-    const linkUrl = 'https://github.com/apps/hypermode-local/installations/select_target/callback?port=5051&type=cli'
-    await open(linkUrl)
+    const linkUrl = 'https://github.com/apps/hypermode/installations/select_target?port=5051&source=cli'
+    open(linkUrl)
   }
 
   public async run(): Promise<void> {
@@ -116,10 +116,10 @@ export default class LinkIndex extends Command {
       }, timeoutDuration)
 
       // Listen on port 5051 for the redirect
-      server.listen(5051, 'localhost', async () => {
+      server.listen(5051, 'localhost', () => {
         try {
-          this.log('Opening login page...')
-          await this.openLinkPage()
+          this.log('Opening link page...')
+          this.openLinkPage()
         } catch (error) {
           server.close()
           throw error
