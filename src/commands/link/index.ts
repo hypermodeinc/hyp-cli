@@ -1,6 +1,8 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
+import * as http from 'node:http'
+import {URL} from 'node:url'
 
 import {ciStr} from '../../util/ci.js'
 import {
@@ -22,6 +24,12 @@ export default class LinkIndex extends Command {
 
   static override flags = {}
 
+  public async openLinkPage() {
+    // Open the Hypermode sign-in page in the default browser
+    const linkUrl = 'https://github.com/apps/hypermode-local/installations/select_target/callback?port=5051&type=cli'
+    await open(linkUrl)
+  }
+
   public async run(): Promise<void> {
     // check if the directory has a .git/config with a remote named 'origin', if not, throw an error and ask them to set that up
     const gitConfigFilePath = getGitConfigFilePath()
@@ -41,9 +49,9 @@ export default class LinkIndex extends Command {
       return
     }
 
-    const res = readSettingsJson(envFilePath)
+    const settings = readSettingsJson(envFilePath)
 
-    if (!res.email || !res.jwt || !res.orgId) {
+    if (!settings.email || !settings.jwt || !settings.orgId) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
       return
     }
@@ -54,14 +62,86 @@ export default class LinkIndex extends Command {
 
     let installationId = ''
 
-    if (!res.installationIds || !res.installationIds[gitOwner]) {
+    if (!settings.installationIds || !settings.installationIds[gitOwner]) {
       // github app installation flow here
+      const server = http.createServer(async (req, res) => {
+        try {
+          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+          const installationId = url.searchParams.get('installation_id')
+
+          if (!installationId) {
+            res.writeHead(400, {'Content-Type': 'text/plain'})
+            res.end('Installation ID not found in the request.')
+            return
+          }
+
+          res.writeHead(200, {'Content-Type': 'text/html'})
+          res.end(linkHTML)
+
+          // Close all existing connections
+          server.closeAllConnections()
+
+          // Close the server and wait for it to actually close
+          server.close(async err => {
+            if (err) {
+              throw err
+            }
+
+            const newInstallationIds = {
+              ...settings.installationIds,
+              [gitOwner]: installationId,
+            }
+
+            const newSettings = {
+              ...settings,
+              installationIds: newInstallationIds,
+            }
+
+            fs.writeFileSync(envFilePath, JSON.stringify(newSettings, null, 2), {flag: 'w'})
+            settings.installationIds = newInstallationIds
+          })
+        } catch (error) {
+          res.writeHead(500, {'Content-Type': 'text/plain'})
+          res.end('An error occurred during authentication.')
+          throw error
+        }
+      })
+
+      // Set a timeout for the server
+      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeout = setTimeout(() => {
+        server.closeAllConnections()
+        server.close()
+        throw new Error('Authentication timed out. Please try again.')
+      }, timeoutDuration)
+
+      // Listen on port 5051 for the redirect
+      server.listen(5051, 'localhost', async () => {
+        try {
+          this.log('Opening login page...')
+          await this.openLinkPage()
+        } catch (error) {
+          server.close()
+          throw error
+        }
+      })
+
+      // Ensure the timeout is cleared if the server closes successfully
+      server.on('close', () => {
+        clearTimeout(timeout)
+      })
+
+      // Handle server errors
+      server.on('error', error => {
+        clearTimeout(timeout)
+        throw error
+      })
     } else  {
-      installationId = res.installationIds[gitOwner]
+      installationId = settings.installationIds[gitOwner]
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(res.jwt, installationId, gitUrl)
+    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl)
 
     if (!repoId) {
       throw new Error('No repoId found for the given installationId and gitUrl')
@@ -69,7 +149,7 @@ export default class LinkIndex extends Command {
 
     // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
     // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
-    const projects = await getProjectsByOrgReq(res.jwt, res.orgId)
+    const projects = await getProjectsByOrgReq(settings.jwt, settings.orgId)
 
     const projectsNoRepoId = projects.filter(project => !project.repoId)
 
@@ -80,18 +160,18 @@ export default class LinkIndex extends Command {
 
       if (confirmExistingProject) {
         selectedProject = await promptProjectLinkSelection(projectsNoRepoId)
-        const completedProject = await sendCreateProjectRepoReq(res.jwt, selectedProject.id, repoId, repoName)
+        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoName)
 
         this.log(chalk.green('Successfully linked project ' + completedProject.name + ' to repo ' + repoName + '! 🎉'))
       } else {
         const projectName = await promptProjectName(projects)
-        const newProject = await sendCreateProjectReq(res.jwt, res.orgId, projectName, repoId, repoName)
+        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
 
         this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
       }
     } else {
       const projectName = await promptProjectName(projects)
-      const newProject = await sendCreateProjectReq(res.jwt, res.orgId, projectName, repoId, repoName)
+      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
 
       this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
     }
@@ -111,3 +191,55 @@ export default class LinkIndex extends Command {
     }
   }
 }
+
+const linkHTML = `<!-- src/commands/login/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        margin: 0;
+        background-color: #14161f;
+      }
+      h1 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      p {
+        color: #62646b;
+        text-align: center;
+      }
+
+      svg {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="#fff"
+        d="M10.0173 0H2.64764L0 10.3598H7.36967L10.0173 0ZM2.91136 22.6282L6.0172 10.3599H14.1776L16.8252 0.00012207H24.1949L18.3248 22.9691H10.9551L14.1592 10.4317L2.91136 22.6282Z"
+      />
+    </svg>
+    <h1>Link complete!</h1>
+    <p>You can now close this window and return to the terminal.</p>
+  </body>
+</html>
+`

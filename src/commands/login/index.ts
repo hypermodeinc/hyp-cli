@@ -162,14 +162,14 @@ export default class LoginIndex extends Command {
       fs.mkdirSync(envDir, {recursive: true})
     }
 
-    const res = readSettingsJson(envFilePath)
+    const settings = readSettingsJson(envFilePath)
 
     // Prepare the JSON object with the new content
     const newEnvContent = {
       HYP_EMAIL: email,
       HYP_JWT: jwt,
       HYP_ORG_ID: orgId,
-      INSTALLATION_IDS: res.installationIds,
+      INSTALLATION_IDS: settings.installationIds,
     }
 
     // Write the new content to the file, replacing any existing content
