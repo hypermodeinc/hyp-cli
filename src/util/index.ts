@@ -53,7 +53,7 @@ export async function promptProjectLinkSelection(projects: Project[]): Promise<P
 
 export async function promptProjectName(projects: Project[]): Promise<string> {
   const projectName = await inquirer.input({
-    message: 'Please enter a project name:',
+    message: 'Creating a new project. Please enter a project name:',
   })
 
   // check if project name already exists in projects
@@ -65,6 +65,13 @@ export async function promptProjectName(projects: Project[]): Promise<string> {
   }
 
   return projectName
+}
+
+export async function confirmOverwriteCiHypFile(): Promise<boolean> {
+  return inquirer.confirm({
+    default: true,
+    message: 'A ci-hyp.yml file already exists. Would you like to overwrite it?',
+  })
 }
 
 export function confirmExistingProjectLink(): Promise<boolean> {

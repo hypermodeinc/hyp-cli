@@ -10,7 +10,7 @@ import {
   getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq,
 } from '../../util/graphql.js'
 import {
-  confirmExistingProjectLink, fileExists, getCiHypFilePath, getEnvFilePath, getGitConfigFilePath,
+  confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getEnvFilePath, getGitConfigFilePath,
   getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson,
 } from '../../util/index.js'
 
@@ -127,7 +127,7 @@ export default class LinkIndex extends Command {
 
     const gitOwner = gitUrl.split('/')[3]
 
-    const repoName = gitUrl.split('/')[4]
+    const repoName = gitUrl.split('/')[4].replace(/\.git$/, '')
 
     const installationId = (!settings.installationIds || !settings.installationIds[gitOwner]) ? await this.getUserInstallationThroughAuthFlow() : settings.installationIds[gitOwner]
 
@@ -176,10 +176,16 @@ export default class LinkIndex extends Command {
       fs.mkdirSync(githubWorkflowDir, {recursive: true})
     }
 
-    if (!fileExists(ciHypFilePath)) {
-      // create the file
-      fs.writeFileSync(ciHypFilePath, JSON.stringify(ciStr, null, 2), {flag: 'w'})
+    if (fileExists(ciHypFilePath)) {
+      // prompt if they want to replace it
+      const confirmOverwrite = await confirmOverwriteCiHypFile()
+      if (!confirmOverwrite) {
+        this.log(chalk.yellow('Skipping ci-hyp.yml creation.'))
+      }
     }
+
+    // create the file
+    fs.writeFileSync(ciHypFilePath, ciStr, {flag: 'w'})
   }
 }
 

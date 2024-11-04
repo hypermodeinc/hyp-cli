@@ -26,7 +26,7 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
 export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
   const query = `
     mutation CreateProjectRepo {
-      createProject(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: "CUSTOM"}) {
+      createProjectRepo(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM}) {
           id
           name
           repoId
@@ -36,7 +36,7 @@ export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
-  const project: Project = data.data.createProject
+  const project: Project = data.data.createProjectRepo
 
   return project
 }
@@ -44,7 +44,7 @@ export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: 
 export async function sendCreateProjectReq(jwt: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
   const query = `
     mutation CreateProjectBranchBackend {
-      createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", projectName: "${projectName}", repoId: "${repoId}", repoName: "${repoName}", sourceType: "CUSTOM"}
+      createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
       ) {
           id
           name
@@ -99,14 +99,14 @@ export async function getProjectsByOrgReq(jwt: string, orgId: string): Promise<P
   return projects
 }
 
-export function sendGetRepoIdReq(jwt: string, installationId: string, gitUrl: string): Promise<string> {
+export async function sendGetRepoIdReq(jwt: string, installationId: string, gitUrl: string): Promise<string> {
   const query = `
       query getUserRepoIdByUrl {
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
         }`
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  const data: any = sendGraphQLReqToHypermode(jwt, query)
+  const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   if (!data.data.getUserRepoIdByUrl) {
     throw new Error('No repoId found for the given installationId and gitUrl')
