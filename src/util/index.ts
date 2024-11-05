@@ -88,7 +88,7 @@ export async function confirmOverwriteCiHypFile(): Promise<boolean> {
   })
 }
 
-export function confirmExistingProjectLink(): Promise<boolean> {
+export async function confirmExistingProjectLink(): Promise<boolean> {
   return inquirer.confirm({
     default: true,
     message: 'You have existing projects with no linked repositories. Would you like to select from these projects?',

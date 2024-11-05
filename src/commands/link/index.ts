@@ -134,7 +134,7 @@ export default class LinkIndex extends Command {
 
     if (!settings.installationIds || !settings.installationIds[gitOwner]) {
       installationId = await this.getUserInstallationThroughAuthFlow()
-      writeGithubInstallationIdToSettingsFile(gitOwner, installationId)
+      await writeGithubInstallationIdToSettingsFile(gitOwner, installationId)
     } else {
       installationId = settings.installationIds[gitOwner]
     }
