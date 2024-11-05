@@ -104,7 +104,7 @@ export default class LinkIndex extends Command {
     const gitConfigFilePath = getGitConfigFilePath()
 
     if (!fileExists(gitConfigFilePath)) {
-      throw new Error('No remote git repository found')
+      throw new Error(chalk.red('No .git found in this directory. Please initialize a git repository with `git init`.'))
     }
 
     const gitUrl = getGitRemoteUrl(gitConfigFilePath)
