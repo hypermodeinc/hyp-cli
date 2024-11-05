@@ -71,7 +71,7 @@ export default class CustomHelp extends Help {
     out
       += 'View the docs:'
       + ' '.repeat(Math.max(1, this.prePad + this.postPad - 12))
-      + chalk.blueBright('https://docs.hypermode.com/introduction')
+      + chalk.blueBright('https://docs.hypermode.com')
       + '\n'
     // out += "View the repo:" + " ".repeat(Math.max(1, this.pre_pad + this.post_pad - 12)) + chalk.blueBright("https://github.com/HypermodeInc/modus") + "\n";
 

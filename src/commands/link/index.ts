@@ -18,7 +18,7 @@ import {
 export default class LinkIndex extends Command {
   static override args = {}
 
-  static override description = 'Link a Modus App To Hypermode'
+  static override description = 'Link a repo with a Modus App to a Hypermode Project'
 
   static override examples = [
     '<%= config.bin %> <%= command.id %>',
