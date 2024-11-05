@@ -1,6 +1,6 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
-import * as fs from 'node:fs'
+import * as fs from "../../util/fs.js";
 import * as http from 'node:http'
 import {URL} from 'node:url'
 import open from 'open'
@@ -10,8 +10,9 @@ import {
   getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq,
 } from '../../util/graphql.js'
 import {
-  confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getEnvFilePath, getGitConfigFilePath,
+  confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath,
   getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson,
+  writeGithubInstallationIdToSettingsFile,
 } from '../../util/index.js'
 
 export default class LinkIndex extends Command {
@@ -103,22 +104,22 @@ export default class LinkIndex extends Command {
     // check if the directory has a .git/config with a remote named 'origin', if not, throw an error and ask them to set that up
     const gitConfigFilePath = getGitConfigFilePath()
 
-    if (!fileExists(gitConfigFilePath)) {
+    if (!await fileExists(gitConfigFilePath)) {
       throw new Error('No remote git repository found')
     }
 
-    const gitUrl = getGitRemoteUrl(gitConfigFilePath)
+    const gitUrl = await getGitRemoteUrl(gitConfigFilePath)
 
     // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
     // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
 
-    const envFilePath = getEnvFilePath()
-    if (!fileExists(envFilePath)) {
+    const settingsFilePath = getSettingsFilePath()
+    if (!await fileExists(settingsFilePath)) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
       return
     }
 
-    const settings = readSettingsJson(envFilePath)
+    const settings = await readSettingsJson(settingsFilePath)
 
     if (!settings.email || !settings.jwt || !settings.orgId) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
@@ -129,7 +130,14 @@ export default class LinkIndex extends Command {
 
     const repoName = gitUrl.split('/')[4].replace(/\.git$/, '')
 
-    const installationId = (!settings.installationIds || !settings.installationIds[gitOwner]) ? await this.getUserInstallationThroughAuthFlow() : settings.installationIds[gitOwner]
+    let installationId = null
+
+    if (!settings.installationIds || !settings.installationIds[gitOwner]) {
+      installationId = await this.getUserInstallationThroughAuthFlow()
+      writeGithubInstallationIdToSettingsFile(gitOwner, installationId)
+    } else {
+      installationId = settings.installationIds[gitOwner]
+    }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
     const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl)
@@ -171,12 +179,12 @@ export default class LinkIndex extends Command {
     const githubWorkflowDir = getGithubWorkflowDir()
     const ciHypFilePath = getCiHypFilePath()
 
-    if (!fileExists(githubWorkflowDir)) {
+    if (!await fileExists(githubWorkflowDir)) {
       // create the directory
-      fs.mkdirSync(githubWorkflowDir, {recursive: true})
+      await fs.mkdir(githubWorkflowDir, {recursive: true})
     }
 
-    if (fileExists(ciHypFilePath)) {
+    if (await fileExists(ciHypFilePath)) {
       // prompt if they want to replace it
       const confirmOverwrite = await confirmOverwriteCiHypFile()
       if (!confirmOverwrite) {
@@ -185,7 +193,7 @@ export default class LinkIndex extends Command {
     }
 
     // create the file
-    fs.writeFileSync(ciHypFilePath, ciStr, {flag: 'w'})
+    await fs.writeFile(ciHypFilePath, ciStr, {flag: 'w'})
   }
 }
 

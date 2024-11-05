@@ -1,8 +1,8 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
-import * as fs from 'node:fs'
+import * as fs from "../../util/fs.js";
 
-import {fileExists, getEnvFilePath, readSettingsJson} from '../../util/index.js'
+import {fileExists, getSettingsFilePath, readSettingsJson} from '../../util/index.js'
 
 export default class LogoutIndex extends Command {
   static override args = {}
@@ -14,15 +14,15 @@ export default class LogoutIndex extends Command {
   static override flags = {}
 
   public async run(): Promise<void> {
-    const envFilePath = getEnvFilePath()
+    const settingsFilePath = getSettingsFilePath()
 
     // Check if .env.local file exists
-    if (!fileExists(envFilePath)) {
+    if (!await fileExists(settingsFilePath)) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
       return
     }
 
-    const res = readSettingsJson(envFilePath)
+    const res = await readSettingsJson(settingsFilePath)
 
     if (!res.email) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
@@ -31,7 +31,7 @@ export default class LogoutIndex extends Command {
 
     console.log('Logging out of email: ' + chalk.dim(res.email))
 
-    const newEnvContent = {
+    const newSettingsContent = {
       HYP_EMAIL: null,
       HYP_JWT: null,
       HYP_ORG_ID: null,
@@ -39,6 +39,6 @@ export default class LogoutIndex extends Command {
     }
 
     // remove all content from settings.json
-    fs.writeFileSync(envFilePath, JSON.stringify(newEnvContent, null, 2), {flag: 'w'})
+    await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), {flag: 'w'})
   }
 }
