@@ -33,9 +33,11 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
+    "@eslint/js": "^9.14.0",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/chai": "^5",
+    "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.8.0",
     "@types/node-persist": "^3.1.8",
@@ -43,7 +45,7 @@
     "@types/sinon": "^17.0.3",
     "babel-jest": "^29.7.0",
     "chai": "^5",
-    "eslint": "^9",
+    "eslint": "^9.14.0",
     "eslint-config-oclif": "^5",
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9",
@@ -53,7 +55,8 @@
     "sinon": "^19.0.2",
     "ts-jest": "^29.2.5",
     "ts-node": "^10",
-    "typescript": "^5"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0"
   },
   "files": [
     "/bin",
@@ -82,6 +85,7 @@
     }
   },
   "scripts": {
+    "lint": "eslint .",
     "pack": "npm pack",
     "build": "rm -rf dist && tsc -b",
     "postpack": "rm -f oclif.manifest.json",
