@@ -164,7 +164,7 @@ export default class LinkIndex extends Command {
       const projectName = await promptProjectName(projects)
       const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
 
-      this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
+      this.log(chalk.blueBright('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! Setting up CI workflow...'))
     }
 
     // add ci workflow to the repo if it doesn't already exist
@@ -176,16 +176,22 @@ export default class LinkIndex extends Command {
       fs.mkdirSync(githubWorkflowDir, {recursive: true})
     }
 
+    let shouldCreateCIFile = true
     if (fileExists(ciHypFilePath)) {
       // prompt if they want to replace it
       const confirmOverwrite = await confirmOverwriteCiHypFile()
       if (!confirmOverwrite) {
         this.log(chalk.yellow('Skipping ci-hyp.yml creation.'))
+        shouldCreateCIFile = false
       }
     }
 
-    // create the file
-    fs.writeFileSync(ciHypFilePath, ciStr, {flag: 'w'})
+    if (shouldCreateCIFile) {
+      fs.writeFileSync(ciHypFilePath, ciStr)
+      this.log(chalk.green('Successfully created ci-hyp.yml! 🎉'))
+    }
+
+    this.log(chalk.green('Linking complete! 🎉'))
   }
 }
 
