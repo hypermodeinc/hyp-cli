@@ -128,7 +128,7 @@ export function getGitRemoteUrl(filePath: string): string {
   const content = fs.readFileSync(filePath, 'utf8')
   const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/)
   if (!remoteMatch) {
-    throw new Error('No remote origin found in .git/config')
+    throw new Error(chalk.red('No remote origin found in .git/config, please set up a remote origin with `git remote add origin <url>`.'))
   }
 
   return remoteMatch[1]
@@ -154,8 +154,8 @@ export function readSettingsJson(filePath: string): {
     jwt = jsonContent.HYP_JWT || null
     orgId = jsonContent.HYP_ORG_ID || null
     installationIds = jsonContent.INSTALLATION_IDS || null
-  } catch (error) {
-    console.error('Error parsing JSON content:', error)
+  } catch {
+    // ignore error
   }
 
   return {
