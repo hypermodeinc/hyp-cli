@@ -1,13 +1,12 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
-import * as fs from 'node:fs'
 import * as http from 'node:http'
 import {URL} from 'node:url'
 import open from 'open'
 
 import {sendGetOrgsReq} from '../../util/graphql.js'
 import {
-  fileExists, getEnvDir, getEnvFilePath, promptOrgSelection, readSettingsJson,
+  writeToSettingsFile, promptOrgSelection,
 } from '../../util/index.js'
 
 const loginHTML = `<!-- src/commands/login/login.html -->
@@ -65,7 +64,7 @@ const loginHTML = `<!-- src/commands/login/login.html -->
 export default class LoginIndex extends Command {
   static override args = {}
 
-  static override description = 'Login to Hypermode Console'
+  static override description = 'Log into Hypermode'
 
   static override examples = ['<%= config.bin %> <%= command.id %>']
 
@@ -107,7 +106,7 @@ export default class LoginIndex extends Command {
             try {
               const orgs = await sendGetOrgsReq(jwt)
               const selectedOrg = await promptOrgSelection(orgs)
-              this.writeToEnvFile(jwt, email, selectedOrg.id)
+              await writeToSettingsFile(jwt, email, selectedOrg.id)
               this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
               resolve()
             } catch (error) {
@@ -151,28 +150,5 @@ export default class LoginIndex extends Command {
         reject(error)
       })
     })
-  }
-
-  private async writeToEnvFile(jwt: string, email: string, orgId: string): Promise<void> {
-    const envDir = getEnvDir()
-    const envFilePath = getEnvFilePath()
-
-    // Create the directory if it doesn't exist
-    if (!fileExists(envDir)) {
-      fs.mkdirSync(envDir, {recursive: true})
-    }
-
-    const settings = readSettingsJson(envFilePath)
-
-    // Prepare the JSON object with the new content
-    const newEnvContent = {
-      HYP_EMAIL: email,
-      HYP_JWT: jwt,
-      HYP_ORG_ID: orgId,
-      INSTALLATION_IDS: settings.installationIds,
-    }
-
-    // Write the new content to the file, replacing any existing content
-    fs.writeFileSync(envFilePath, JSON.stringify(newEnvContent, null, 2), {flag: 'w'})
   }
 }
