@@ -8,7 +8,7 @@ import {Interface} from 'node:readline'
 import {Org, Project} from '../util/types.js'
 
 export function ask(question: string, rl: Interface, placeholder?: string): Promise<string> {
-  return new Promise<string>((res, _) => {
+  return new Promise<string>((res) => {
     rl.question(question + (placeholder ? ' ' + placeholder + ' ' : ''), answer => {
       res(answer)
     })

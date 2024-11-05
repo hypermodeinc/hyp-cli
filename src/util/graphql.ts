@@ -1,9 +1,7 @@
-/* eslint-disable max-params */
 import fetch from 'node-fetch'
 
 import {Org, Project} from '../util/types.js'
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export async function sendGraphQLReqToHypermode(jwt: string, query: string): Promise<any> {
   const url = 'https://api.hypermode.com/graphql'
 
@@ -18,7 +16,6 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
 
   const response = await fetch(url, options)
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await response.json()
   return data
 }
@@ -33,7 +30,6 @@ export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: 
       }
     }`
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   const project: Project = data.data.createProjectRepo
@@ -52,7 +48,6 @@ export async function sendCreateProjectReq(jwt: string, orgId: string, projectNa
       }
     }`
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   const project: Project = data.data.createProjectBranchBackend
@@ -69,7 +64,6 @@ export async function sendGetOrgsReq(jwt: string): Promise<Org[]> {
         }
     }`
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   const orgs: Org[] = data.data.getOrgs
@@ -90,10 +84,8 @@ export async function getProjectsByOrgReq(jwt: string, orgId: string): Promise<P
         }
     }`
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
-  // eslint-disable-next-line prefer-destructuring
   const projects: Project[] = data.data.getOrg.projects
 
   return projects
@@ -105,7 +97,6 @@ export async function sendGetRepoIdReq(jwt: string, installationId: string, gitU
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
         }`
 
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   const data: any = await sendGraphQLReqToHypermode(jwt, query)
 
   if (!data.data.getUserRepoIdByUrl) {
