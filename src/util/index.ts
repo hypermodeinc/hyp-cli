@@ -114,7 +114,7 @@ export function getGitRemoteUrl(filePath: string): string {
   const content = fs.readFileSync(filePath, 'utf8')
   const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/)
   if (!remoteMatch) {
-    throw new Error('No remote origin found in .git/config, please set up a remote origin with `git remote add origin <url>`.')
+    throw new Error(chalk.red('No remote origin found in .git/config, please set up a remote origin with `git remote add origin <url>`.'))
   }
 
   return remoteMatch[1]
