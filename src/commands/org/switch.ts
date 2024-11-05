@@ -2,8 +2,9 @@ import {Command} from '@oclif/core'
 import chalk from 'chalk'
 import * as fs from 'node:fs'
 
+import {sendGetOrgsReq} from '../../util/graphql.js'
 import {
-  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson, sendGraphQLRequest,
+  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson,
 } from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
@@ -29,7 +30,7 @@ export default class OrgSwitch extends Command {
       return
     }
 
-    const orgs = await sendGraphQLRequest(res.jwt)
+    const orgs = await sendGetOrgsReq(res.jwt)
     const selectedOrg = await promptOrgSelection(orgs)
 
     const updatedContent = {
