@@ -189,5 +189,12 @@ export async function writeGithubInstallationIdToSettingsFile(gitOwner: string, 
   settings.installationIds = settings.installationIds || {}
   settings.installationIds[gitOwner] = installationId
 
-  await fs.writeFile(settingsFilePath, JSON.stringify(settings, null, 2), {flag: 'w'})
+  const newSettingsContent = {
+    HYP_EMAIL: settings.email,
+    HYP_JWT: settings.jwt,
+    HYP_ORG_ID: settings.orgId,
+    INSTALLATION_IDS: settings.installationIds,
+  }
+
+  await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), {flag: 'w'})
 }
