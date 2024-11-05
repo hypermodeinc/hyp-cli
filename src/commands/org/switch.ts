@@ -1,10 +1,10 @@
 import {Command} from '@oclif/core'
 import chalk from 'chalk'
-import * as fs from 'node:fs'
 
 import {sendGetOrgsReq} from '../../util/graphql.js'
 import {
-  fileExists, getEnvFilePath, promptOrgSelection, readSettingsJson,
+  fileExists, getSettingsFilePath, promptOrgSelection, readSettingsJson,
+  writeToSettingsFile,
 } from '../../util/index.js'
 
 export default class OrgSwitch extends Command {
@@ -17,13 +17,13 @@ export default class OrgSwitch extends Command {
   static override flags = {}
 
   public async run(): Promise<void> {
-    const envFilePath = getEnvFilePath()
-    if (!fileExists(envFilePath)) {
+    const settingsFilePath = getSettingsFilePath()
+    if (!await fileExists(settingsFilePath)) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
       return
     }
 
-    const res = readSettingsJson(envFilePath)
+    const res = await readSettingsJson(settingsFilePath)
 
     if (!res.email || !res.jwt || !res.orgId) {
       this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
@@ -33,12 +33,6 @@ export default class OrgSwitch extends Command {
     const orgs = await sendGetOrgsReq(res.jwt)
     const selectedOrg = await promptOrgSelection(orgs)
 
-    const updatedContent = {
-      HYP_EMAIL: res.email,
-      HYP_JWT: res.jwt,
-      HYP_ORG_ID: selectedOrg.id,
-    }
-
-    fs.writeFileSync(envFilePath, JSON.stringify(updatedContent, null, 2), {flag: 'w'})
+    await writeToSettingsFile(res.jwt, res.email, selectedOrg.id)
   }
 }
