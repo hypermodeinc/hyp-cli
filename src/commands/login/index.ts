@@ -65,7 +65,7 @@ const loginHTML = `<!-- src/commands/login/login.html -->
 export default class LoginIndex extends Command {
   static override args = {}
 
-  static override description = 'Login to Hypermode Console'
+  static override description = 'Log into Hypermode'
 
   static override examples = ['<%= config.bin %> <%= command.id %>']
 
