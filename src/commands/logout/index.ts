@@ -7,7 +7,7 @@ import {fileExists, getEnvFilePath, readSettingsJson} from '../../util/index.js'
 export default class LogoutIndex extends Command {
   static override args = {}
 
-  static override description = 'Logout of Hypermode Console in the CLI'
+  static override description = 'Log Hyp CLI out of Hypermode'
 
   static override examples = ['<%= config.bin %> <%= command.id %>']
 
