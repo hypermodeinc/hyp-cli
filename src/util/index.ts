@@ -1,8 +1,8 @@
 import {ExitPromptError} from '@inquirer/core'
 import * as inquirer from '@inquirer/prompts'
 import chalk from 'chalk'
+import * as fs from "../util/fs.js";
 import slugify from "@sindresorhus/slugify"
-import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {Interface} from 'node:readline'
 
@@ -88,24 +88,24 @@ export async function confirmOverwriteCiHypFile(): Promise<boolean> {
   })
 }
 
-export function confirmExistingProjectLink(): Promise<boolean> {
+export async function confirmExistingProjectLink(): Promise<boolean> {
   return inquirer.confirm({
     default: true,
     message: 'You have existing projects with no linked repositories. Would you like to select from these projects?',
   })
 }
 
-export function getEnvDir(): string {
+export function getSettingsDir(): string {
   return path.join(process.env.HOME || '', '.hypermode')
 }
 
-export function getEnvFilePath(): string {
-  const envDir = getEnvDir()
-  return path.join(envDir, 'settings.json')
+export function getSettingsFilePath(): string {
+  const settingsDir = getSettingsDir()
+  return path.join(settingsDir, 'settings.json')
 }
 
-export function fileExists(filePath: string): boolean {
-  return fs.existsSync(filePath)
+export async function fileExists(filePath: string): Promise<boolean> {
+  return fs.exists(filePath)
 }
 
 export function getGitDir(): string {
@@ -124,8 +124,8 @@ export function getGitConfigFilePath(): string {
   return path.join(getGitDir(), 'config')
 }
 
-export function getGitRemoteUrl(filePath: string): string {
-  const content = fs.readFileSync(filePath, 'utf8')
+export async function getGitRemoteUrl(filePath: string): Promise<string> {
+  const content = await fs.readFile(filePath, 'utf8')
   const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/)
   if (!remoteMatch) {
     throw new Error(chalk.red('No remote origin found in .git/config, please set up a remote origin with `git remote add origin <url>`.'))
@@ -134,14 +134,8 @@ export function getGitRemoteUrl(filePath: string): string {
   return remoteMatch[1]
 }
 
-export function readSettingsJson(filePath: string): {
-  content: string
-  email: null | string
-  installationIds: { [key: string]: string } | null
-  jwt: null | string
-  orgId: null | string
-} {
-  const content = fs.readFileSync(filePath, 'utf8')
+export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string; } | null; jwt: null | string; orgId: null | string; }> {
+  const content = await fs.readFile(filePath, 'utf8')
 
   let email: null | string = null
   let jwt: null | string = null
@@ -161,4 +155,46 @@ export function readSettingsJson(filePath: string): {
   return {
     content, email, installationIds, jwt, orgId,
   }
+}
+
+export async function writeToSettingsFile(jwt: string, email: string, orgId: string): Promise<void> {
+  const settingsDir = getSettingsDir()
+  const settingsFilePath = getSettingsFilePath()
+
+  // Create the directory if it doesn't exist
+  if (!await fileExists(settingsDir)) {
+    await fs.mkdir(settingsDir, {recursive: true})
+  }
+
+  const newSettingsContent: { HYP_EMAIL: string; HYP_JWT: string; HYP_ORG_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
+    HYP_EMAIL: email,
+    HYP_JWT: jwt,
+    HYP_ORG_ID: orgId,
+    INSTALLATION_IDS: null,
+};
+
+  if (await fileExists(settingsFilePath)) {
+    const settings = await readSettingsJson(settingsFilePath)
+    newSettingsContent.INSTALLATION_IDS = settings.installationIds
+  }
+
+  // Write the new content to the file, replacing any existing content
+  await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), {flag: 'w'})
+}
+
+export async function writeGithubInstallationIdToSettingsFile(gitOwner: string, installationId: string): Promise<void> {
+  const settingsFilePath = getSettingsFilePath()
+  const settings = await readSettingsJson(settingsFilePath)
+
+  settings.installationIds = settings.installationIds || {}
+  settings.installationIds[gitOwner] = installationId
+
+  const newSettingsContent = {
+    HYP_EMAIL: settings.email,
+    HYP_JWT: settings.jwt,
+    HYP_ORG_ID: settings.orgId,
+    INSTALLATION_IDS: settings.installationIds,
+  }
+
+  await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), {flag: 'w'})
 }
