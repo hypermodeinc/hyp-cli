@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'
 
 import {Org, Project} from '../util/types.js'
+import { getSlugFromName } from './index.js'
 
 export async function sendGraphQLReqToHypermode(jwt: string, query: string): Promise<any> {
   const url = 'https://api.hypermode.com/graphql'
@@ -38,9 +39,10 @@ export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: 
 }
 
 export async function sendCreateProjectReq(jwt: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
+  const slug = getSlugFromName(projectName)
   const query = `
     mutation CreateProjectBranchBackend {
-      createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
+      createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", slug: "${slug}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
       ) {
           id
           name

@@ -1,6 +1,7 @@
 import {ExitPromptError} from '@inquirer/core'
 import * as inquirer from '@inquirer/prompts'
 import chalk from 'chalk'
+import slugify from "@sindresorhus/slugify"
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import {Interface} from 'node:readline'
@@ -56,6 +57,11 @@ export async function promptProjectName(projects: Project[]): Promise<string> {
     message: 'Creating a new project. Please enter a project name:',
   })
 
+  if (!validateProjectName(projectName)) {
+    console.log(chalk.red('Project name must be longer than 3 characters.'))
+    return promptProjectName(projects)
+  }
+
   // check if project name already exists in projects
   const projectNames = projects.map(project => project.name)
   if (projectNames.includes(projectName)) {
@@ -65,6 +71,14 @@ export async function promptProjectName(projects: Project[]): Promise<string> {
   }
 
   return projectName
+}
+
+function validateProjectName(projectName: string): boolean {
+  return projectName.length > 3
+}
+
+export function getSlugFromName(name: string): string {
+  return slugify(name)
 }
 
 export async function confirmOverwriteCiHypFile(): Promise<boolean> {
