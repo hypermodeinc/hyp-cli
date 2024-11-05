@@ -105,7 +105,7 @@ export default class LinkIndex extends Command {
     const gitConfigFilePath = getGitConfigFilePath()
 
     if (!await fileExists(gitConfigFilePath)) {
-      throw new Error('No remote git repository found')
+      throw new Error(chalk.red('No .git found in this directory. Please initialize a git repository with `git init`.'))
     }
 
     const gitUrl = await getGitRemoteUrl(gitConfigFilePath)
@@ -172,7 +172,7 @@ export default class LinkIndex extends Command {
       const projectName = await promptProjectName(projects)
       const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
 
-      this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
+      this.log(chalk.blueBright('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! Setting up CI workflow...'))
     }
 
     // add ci workflow to the repo if it doesn't already exist
@@ -184,16 +184,22 @@ export default class LinkIndex extends Command {
       await fs.mkdir(githubWorkflowDir, {recursive: true})
     }
 
+    let shouldCreateCIFile = true
     if (await fileExists(ciHypFilePath)) {
       // prompt if they want to replace it
       const confirmOverwrite = await confirmOverwriteCiHypFile()
       if (!confirmOverwrite) {
         this.log(chalk.yellow('Skipping ci-hyp.yml creation.'))
+        shouldCreateCIFile = false
       }
     }
 
-    // create the file
-    await fs.writeFile(ciHypFilePath, ciStr, {flag: 'w'})
+    if (shouldCreateCIFile) {
+      await fs.writeFile(ciHypFilePath, ciStr, {flag: 'w'})
+      this.log(chalk.green('Successfully created ci-hyp.yml! 🎉'))
+    }
+
+    this.log(chalk.green('Linking complete! 🎉'))
   }
 }
 
