@@ -140,8 +140,8 @@ export function readSettingsJson(filePath: string): {
     jwt = jsonContent.HYP_JWT || null
     orgId = jsonContent.HYP_ORG_ID || null
     installationIds = jsonContent.INSTALLATION_IDS || null
-  } catch (error) {
-    console.error('Error parsing JSON content:', error)
+  } catch {
+    // ignore error
   }
 
   return {
