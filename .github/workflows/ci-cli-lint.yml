@@ -18,7 +18,5 @@ jobs:
           node-version: "22"
       - name: Install dependencies
         run: npm install
-        working-directory: cli
       - name: Lint Program
         run: npm run lint
-        working-directory: cli
