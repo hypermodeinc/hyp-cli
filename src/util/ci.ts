@@ -39,6 +39,14 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Setup TinyGo
+        uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: "0.34.0"
+
       - name: Build project
         run: npx -p @hypermode/modus-cli -y modus build
         working-directory: \${{ env.MODUS_DIR }}
