@@ -10,6 +10,7 @@ jobs:
   release:
     # note: must use GitHub-hosted runner for publishing to NPM with --provenance flag
     runs-on: ubuntu-latest
+    name: Release
     steps:
       - name: "Validate version"
         if: ${{ !startsWith(github.ref_name, 'v') }}
@@ -42,3 +43,21 @@ jobs:
         with:
           prerelease: ${{ contains(steps.parse_cli_version.outputs.cli_version, '-') }}
           make_latest: ${{ contains(steps.parse_cli_version.outputs.cli_version, '-') }}
+  release-install-script:
+    needs: release
+    name: Release Install Script
+    runs-on: warp-ubuntu-latest-x64-2x
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: "${{ github.ref_name }}"
+    - name: Push to R2 Bucket
+      uses: cloudflare/wrangler-action@v3
+      with:
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        apiToken: ${{ secrets.CLOUDFLARE_TOKEN }}
+        wranglerVersion: "3.83.0"
+        preCommands: |
+          cat install.sh
+        command: |
+          r2 object put install/hyp.sh -f install.sh --content-type text/x-sh
