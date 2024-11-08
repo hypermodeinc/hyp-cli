@@ -1,205 +1,206 @@
-import {Command} from '@oclif/core'
-import chalk from 'chalk'
-import * as fs from "../../util/fs.js";
-import * as http from 'node:http'
-import {URL} from 'node:url'
-import open from 'open'
+/*
+ * Copyright 2024 Hypermode Inc.
+ * Licensed under the terms of the Apache License, Version 2.0
+ * See the LICENSE file that accompanied this code for further details.
+ *
+ * SPDX-FileCopyrightText: 2024 Hypermode Inc. <hello@hypermode.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-import {ciStr} from '../../util/ci.js'
-import {
-  getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq,
-} from '../../util/graphql.js'
-import {
-  confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath,
-  getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson,
-  writeGithubInstallationIdToSettingsFile,
-} from '../../util/index.js'
+import { Command } from "@oclif/core";
+import chalk from "chalk";
+import * as fs from "../../util/fs.js";
+import * as http from "node:http";
+import { URL } from "node:url";
+import open from "open";
+
+import { ciStr } from "../../util/ci.js";
+import { getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
+import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile } from "../../util/index.js";
 
 export default class LinkIndex extends Command {
-  static override args = {}
+  static override args = {};
 
-  static override description = 'Link a repo with a Modus App to a Hypermode Project'
+  static override description = "Link a repo with a Modus App to a Hypermode Project";
 
-  static override examples = [
-    '<%= config.bin %> <%= command.id %>',
-  ]
+  static override examples = ["<%= config.bin %> <%= command.id %>"];
 
-  static override flags = {}
+  static override flags = {};
 
   public async getUserInstallationThroughAuthFlow(): Promise<string> {
     return new Promise((resolve, reject) => {
       const server = http.createServer(async (req, res) => {
         try {
-          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
-          const installationId = url.searchParams.get('install_id')
+          const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+          const installationId = url.searchParams.get("install_id");
 
           if (!installationId) {
-            res.writeHead(400, {'Content-Type': 'text/plain'})
-            res.end('Installation ID not found in the request.')
-            return
+            res.writeHead(400, { "Content-Type": "text/plain" });
+            res.end("Installation ID not found in the request.");
+            return;
           }
 
-          res.writeHead(200, {'Content-Type': 'text/html'})
-          res.end(linkHTML)
+          res.writeHead(200, { "Content-Type": "text/html" });
+          res.end(linkHTML);
 
           // Close all existing connections
-          server.closeAllConnections()
+          server.closeAllConnections();
 
           // Close the server and wait for it to actually close
-          server.close(async err => {
+          server.close(async (err) => {
             if (err) {
-              reject(err)
-              return
+              reject(err);
+              return;
             }
 
-            resolve(installationId)
-          })
+            resolve(installationId);
+          });
         } catch (error) {
-          res.writeHead(500, {'Content-Type': 'text/plain'})
-          res.end('An error occurred during authentication.')
-          reject(error)
+          res.writeHead(500, { "Content-Type": "text/plain" });
+          res.end("An error occurred during authentication.");
+          reject(error);
         }
-      })
+      });
 
       // Set a timeout for the server
-      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeoutDuration = 300_000; // 300 seconds in milliseconds
       const timeout = setTimeout(() => {
-        server.closeAllConnections()
-        server.close()
-        reject(new Error('Authentication timed out. Please try again.'))
-      }, timeoutDuration)
+        server.closeAllConnections();
+        server.close();
+        reject(new Error("Authentication timed out. Please try again."));
+      }, timeoutDuration);
 
       // Listen on port 5051 for the redirect
-      server.listen(5051, 'localhost', async () => {
+      server.listen(5051, "localhost", async () => {
         try {
-          this.log('Opening link page...')
-          await this.openLinkPage()
+          this.log("Opening link page...");
+          await this.openLinkPage();
         } catch (error) {
-          server.close()
-          reject(error)
+          server.close();
+          reject(error);
         }
-      })
+      });
 
       // Ensure the timeout is cleared if the server closes successfully
-      server.on('close', () => {
-        clearTimeout(timeout)
-      })
+      server.on("close", () => {
+        clearTimeout(timeout);
+      });
 
       // Handle server errors
-      server.on('error', error => {
-        clearTimeout(timeout)
-        reject(error)
-      })
-    })
+      server.on("error", (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+    });
   }
 
   public async openLinkPage() {
     // Open the Hypermode sign-in page in the default browser
-    const state = encodeURIComponent(JSON.stringify({p: 5051, s: 'cli'}))
-    const linkUrl = 'https://github.com/apps/hypermode/installations/new?state=' + state
-    await open(linkUrl)
+    const state = encodeURIComponent(JSON.stringify({ p: 5051, s: "cli" }));
+    const linkUrl = "https://github.com/apps/hypermode/installations/new?state=" + state;
+    await open(linkUrl);
   }
 
   public async run(): Promise<void> {
     // check if the directory has a .git/config with a remote named 'origin', if not, throw an error and ask them to set that up
-    const gitConfigFilePath = getGitConfigFilePath()
+    const gitConfigFilePath = getGitConfigFilePath();
 
-    if (!await fileExists(gitConfigFilePath)) {
-      throw new Error(chalk.red('No .git found in this directory. Please initialize a git repository with `git init`.'))
+    if (!(await fileExists(gitConfigFilePath))) {
+      throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
     }
 
-    const gitUrl = await getGitRemoteUrl(gitConfigFilePath)
+    const gitUrl = await getGitRemoteUrl(gitConfigFilePath);
 
     // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
     // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
 
-    const settingsFilePath = getSettingsFilePath()
-    if (!await fileExists(settingsFilePath)) {
-      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
-      return
+    const settingsFilePath = getSettingsFilePath();
+    if (!(await fileExists(settingsFilePath))) {
+      this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
+      return;
     }
 
-    const settings = await readSettingsJson(settingsFilePath)
+    const settings = await readSettingsJson(settingsFilePath);
 
     if (!settings.email || !settings.jwt || !settings.orgId) {
-      this.log(chalk.red('Not logged in.') + ' Log in with `hyp login`.')
-      return
+      this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
+      return;
     }
 
-    const gitOwner = gitUrl.split('/')[3]
+    const gitOwner = gitUrl.split("/")[3];
 
-    const repoName = gitUrl.split('/')[4].replace(/\.git$/, '')
+    const repoName = gitUrl.split("/")[4].replace(/\.git$/, "");
 
-    let installationId = null
+    let installationId = null;
 
     if (!settings.installationIds || !settings.installationIds[gitOwner]) {
-      installationId = await this.getUserInstallationThroughAuthFlow()
-      await writeGithubInstallationIdToSettingsFile(gitOwner, installationId)
+      installationId = await this.getUserInstallationThroughAuthFlow();
+      await writeGithubInstallationIdToSettingsFile(gitOwner, installationId);
     } else {
-      installationId = settings.installationIds[gitOwner]
+      installationId = settings.installationIds[gitOwner];
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl)
+    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl);
 
     if (!repoId) {
-      throw new Error('No repoId found for the given installationId and gitUrl')
+      throw new Error("No repoId found for the given installationId and gitUrl");
     }
 
     // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
     // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
-    const projects = await getProjectsByOrgReq(settings.jwt, settings.orgId)
+    const projects = await getProjectsByOrgReq(settings.jwt, settings.orgId);
 
-    const projectsNoRepoId = projects.filter(project => !project.repoId)
+    const projectsNoRepoId = projects.filter((project) => !project.repoId);
 
-    let selectedProject = null
+    let selectedProject = null;
 
     if (projectsNoRepoId.length > 0) {
-      const confirmExistingProject = await confirmExistingProjectLink()
+      const confirmExistingProject = await confirmExistingProjectLink();
 
       if (confirmExistingProject) {
-        selectedProject = await promptProjectLinkSelection(projectsNoRepoId)
-        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoName)
+        selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
+        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoName);
 
-        this.log(chalk.green('Successfully linked project ' + completedProject.name + ' to repo ' + repoName + '! 🎉'))
+        this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
       } else {
-        const projectName = await promptProjectName(projects)
-        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
+        const projectName = await promptProjectName(projects);
+        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName);
 
-        this.log(chalk.green('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! 🎉'))
+        this.log(chalk.green("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! 🎉"));
       }
     } else {
-      const projectName = await promptProjectName(projects)
-      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName)
+      const projectName = await promptProjectName(projects);
+      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName);
 
-      this.log(chalk.blueBright('Successfully created project ' + newProject.name + ' and linked it to repo ' + repoName + '! Setting up CI workflow...'))
+      this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! Setting up CI workflow..."));
     }
 
     // add ci workflow to the repo if it doesn't already exist
-    const githubWorkflowDir = getGithubWorkflowDir()
-    const ciHypFilePath = getCiHypFilePath()
+    const githubWorkflowDir = getGithubWorkflowDir();
+    const ciHypFilePath = getCiHypFilePath();
 
-    if (!await fileExists(githubWorkflowDir)) {
+    if (!(await fileExists(githubWorkflowDir))) {
       // create the directory
-      await fs.mkdir(githubWorkflowDir, {recursive: true})
+      await fs.mkdir(githubWorkflowDir, { recursive: true });
     }
 
-    let shouldCreateCIFile = true
+    let shouldCreateCIFile = true;
     if (await fileExists(ciHypFilePath)) {
       // prompt if they want to replace it
-      const confirmOverwrite = await confirmOverwriteCiHypFile()
+      const confirmOverwrite = await confirmOverwriteCiHypFile();
       if (!confirmOverwrite) {
-        this.log(chalk.yellow('Skipping ci-hyp.yml creation.'))
-        shouldCreateCIFile = false
+        this.log(chalk.yellow("Skipping ci-hyp.yml creation."));
+        shouldCreateCIFile = false;
       }
     }
 
     if (shouldCreateCIFile) {
-      await fs.writeFile(ciHypFilePath, ciStr, {flag: 'w'})
-      this.log(chalk.green('Successfully created ci-hyp.yml! 🎉'))
+      await fs.writeFile(ciHypFilePath, ciStr, { flag: "w" });
+      this.log(chalk.green("Successfully created ci-hyp.yml! 🎉"));
     }
 
-    this.log(chalk.green('Linking complete! 🎉'))
+    this.log(chalk.green("Linking complete! 🎉"));
   }
 }
 
@@ -253,4 +254,4 @@ const linkHTML = `<!-- src/commands/login/login.html -->
     <p>You can now close this window and return to the terminal.</p>
   </body>
 </html>
-`
+`;

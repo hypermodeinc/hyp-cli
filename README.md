@@ -7,14 +7,16 @@ A new CLI for the Hypermode service
 [![Downloads/week](https://img.shields.io/npm/dw/hyp.svg)](https://npmjs.org/package/hyp)
 
 <!-- toc -->
-* [hyp](#hyp)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [hyp](#hyp)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 ## Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @hypermode/hyp-cli
 $ hyp COMMAND
@@ -26,14 +28,16 @@ USAGE
   $ hyp COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 ## Commands
 
 <!-- commands -->
-* [`hyp login`](#hyp-login)
-* [`hyp logout`](#hyp-logout)
-* [`hyp org switch`](#hyp-org-switch)
+
+- [`hyp login`](#hyp-login)
+- [`hyp logout`](#hyp-logout)
+- [`hyp org switch`](#hyp-org-switch)
 
 ### `hyp login`
 
@@ -64,4 +68,5 @@ hyp org switch
 ```
 
 _See code: [src/commands/org/switch.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/org/switch.ts)_
+
 <!-- commandsstop -->
