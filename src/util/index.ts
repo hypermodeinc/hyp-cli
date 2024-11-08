@@ -5,6 +5,7 @@ import * as fs from "../util/fs.js";
 import slugify from "@sindresorhus/slugify"
 import * as path from 'node:path'
 import {Interface} from 'node:readline'
+import os from 'node:os'
 
 import {Org, Project} from '../util/types.js'
 
@@ -96,7 +97,7 @@ export async function confirmExistingProjectLink(): Promise<boolean> {
 }
 
 export function getSettingsDir(): string {
-  return path.join(process.env.HOME || '', '.hypermode')
+  return path.join(os.homedir(), ".hypermode");
 }
 
 export function getSettingsFilePath(): string {
