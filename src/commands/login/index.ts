@@ -1,13 +1,20 @@
-import {Command} from '@oclif/core'
-import chalk from 'chalk'
-import * as http from 'node:http'
-import {URL} from 'node:url'
-import open from 'open'
+/*
+ * Copyright 2024 Hypermode Inc.
+ * Licensed under the terms of the Apache License, Version 2.0
+ * See the LICENSE file that accompanied this code for further details.
+ *
+ * SPDX-FileCopyrightText: 2024 Hypermode Inc. <hello@hypermode.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-import {sendGetOrgsReq} from '../../util/graphql.js'
-import {
-  writeToSettingsFile, promptOrgSelection,
-} from '../../util/index.js'
+import { Command } from "@oclif/core";
+import chalk from "chalk";
+import * as http from "node:http";
+import { URL } from "node:url";
+import open from "open";
+
+import { sendGetOrgsReq } from "../../util/graphql.js";
+import { writeToSettingsFile, promptOrgSelection } from "../../util/index.js";
 
 const loginHTML = `<!-- src/commands/login/login.html -->
 <!DOCTYPE html>
@@ -59,96 +66,96 @@ const loginHTML = `<!-- src/commands/login/login.html -->
     <p>You can now close this window and return to the terminal.</p>
   </body>
 </html>
-`
+`;
 
 export default class LoginIndex extends Command {
-  static override args = {}
+  static override args = {};
 
-  static override description = 'Log into Hypermode'
+  static override description = "Log into Hypermode";
 
-  static override examples = ['<%= config.bin %> <%= command.id %>']
+  static override examples = ["<%= config.bin %> <%= command.id %>"];
 
-  static override flags = {}
+  static override flags = {};
 
   public async openLoginPage() {
     // Open the Hypermode sign-in page in the default browser
-    const loginUrl = 'https://hypermode.com/app/callback?port=5051&type=cli'
-    await open(loginUrl)
+    const loginUrl = "https://hypermode.com/app/callback?port=5051&type=cli";
+    await open(loginUrl);
   }
 
   public async run(): Promise<void> {
     return new Promise((resolve, reject) => {
       const server = http.createServer(async (req, res) => {
         try {
-          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
-          const jwt = url.searchParams.get('jwt')
-          const email = url.searchParams.get('email')
+          const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+          const jwt = url.searchParams.get("jwt");
+          const email = url.searchParams.get("email");
 
           if (!jwt || !email) {
-            res.writeHead(400, {'Content-Type': 'text/plain'})
-            res.end('JWT or email not found in the request.')
-            return
+            res.writeHead(400, { "Content-Type": "text/plain" });
+            res.end("JWT or email not found in the request.");
+            return;
           }
 
-          res.writeHead(200, {'Content-Type': 'text/html'})
-          res.end(loginHTML)
+          res.writeHead(200, { "Content-Type": "text/html" });
+          res.end(loginHTML);
 
           // Close all existing connections
-          server.closeAllConnections()
+          server.closeAllConnections();
 
           // Close the server and wait for it to actually close
-          server.close(async err => {
+          server.close(async (err) => {
             if (err) {
-              reject(err)
-              return
+              reject(err);
+              return;
             }
 
             try {
-              const orgs = await sendGetOrgsReq(jwt)
-              const selectedOrg = await promptOrgSelection(orgs)
-              await writeToSettingsFile(jwt, email, selectedOrg.id)
-              this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
-              resolve()
+              const orgs = await sendGetOrgsReq(jwt);
+              const selectedOrg = await promptOrgSelection(orgs);
+              await writeToSettingsFile(jwt, email, selectedOrg.id);
+              this.log("Successfully logged in as " + chalk.dim(email) + "! 🎉");
+              resolve();
             } catch (error) {
-              reject(error)
+              reject(error);
             }
-          })
+          });
         } catch (error) {
-          res.writeHead(500, {'Content-Type': 'text/plain'})
-          res.end('An error occurred during authentication.')
-          reject(error)
+          res.writeHead(500, { "Content-Type": "text/plain" });
+          res.end("An error occurred during authentication.");
+          reject(error);
         }
-      })
+      });
 
       // Set a timeout for the server
-      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeoutDuration = 300_000; // 300 seconds in milliseconds
       const timeout = setTimeout(() => {
-        server.closeAllConnections()
-        server.close()
-        reject(new Error('Authentication timed out. Please try again.'))
-      }, timeoutDuration)
+        server.closeAllConnections();
+        server.close();
+        reject(new Error("Authentication timed out. Please try again."));
+      }, timeoutDuration);
 
       // Listen on port 5051 for the redirect
-      server.listen(5051, 'localhost', async () => {
+      server.listen(5051, "localhost", async () => {
         try {
-          this.log('Opening login page...')
-          await this.openLoginPage()
+          this.log("Opening login page...");
+          await this.openLoginPage();
         } catch (error) {
-          server.close()
-          reject(error)
+          server.close();
+          reject(error);
         }
-      })
+      });
 
       // Ensure the timeout is cleared if the server closes successfully
-      server.on('close', () => {
-        clearTimeout(timeout)
-      })
+      server.on("close", () => {
+        clearTimeout(timeout);
+      });
 
       // Handle server errors
-      server.on('error', error => {
-        clearTimeout(timeout)
-        reject(error)
-      })
-    })
+      server.on("error", (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+    });
   }
 }
