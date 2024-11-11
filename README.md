@@ -1,72 +1,48 @@
-# hyp
+<!-- markdownlint-disable first-line-heading -->
+<div align="center">
+  
+  [![GitHub License](https://img.shields.io/github/license/hypermodeinc/hyp-cli)](https://github.com/hypermodeinc/hyp-cli?tab=Apache-2.0-1-ov-file#readme)
+  [![chat](https://img.shields.io/discord/1267579648657850441)](https://discord.hypermode.com)
+  [![GitHub Repo stars](https://img.shields.io/github/stars/hypermodeinc/hyp-cli)](https://github.com/hypermodeinc/hyp-cli/stargazers)
+  [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/hypermodeinc/hyp-cli)](https://github.com/hypermodeinc/hyp-cli/commits/main/)
 
-A new CLI for the Hypermode service
+</div>
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/hyp.svg)](https://npmjs.org/package/hyp)
-[![Downloads/week](https://img.shields.io/npm/dw/hyp.svg)](https://npmjs.org/package/hyp)
+<p align="center">
+   <a href="https://docs.hypermode.com/quickstart">Get Started</a> · 
+   <a href="https://docs.hypermode.com/hyp-cli">Docs</a> · 
+   <a href="https://discord.hypermode.com">Discord</a>
+<p>
 
-<!-- toc -->
+Hyp is the command line interface (CLI) for [Hypermode](https://hypermode.com).
 
-- [hyp](#hyp)
-- [Usage](#usage)
-- [Commands](#commands)
-<!-- tocstop -->
+## Quickstart
 
-## Usage
+Install the Hyp CLI
 
-<!-- usage -->
-
-```sh-session
-$ npm install -g @hypermode/hyp-cli
-$ hyp COMMAND
-running command...
-$ hyp (--version)
-@hypermode/hyp-cli/0.0.1-alpha.1 darwin-arm64 node-v22.9.0
-$ hyp --help [COMMAND]
-USAGE
-  $ hyp COMMAND
-...
+```bash
+npm install -g @hypermode/hyp-cli
 ```
 
-<!-- usagestop -->
+Initialize your Modus app
 
-## Commands
-
-<!-- commands -->
-
-- [`hyp login`](#hyp-login)
-- [`hyp logout`](#hyp-logout)
-- [`hyp org switch`](#hyp-org-switch)
-
-### `hyp login`
-
-Login to Hypermode Console
-
-```sh
-hyp login
+```bash
+modus new
 ```
 
-_See code: [src/commands/login/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/login/index.ts)_
+Run your app locally with fast refresh
 
-### `hyp logout`
-
-Logout of Hypermode Console in the CLI
-
-```sh
-hyp logout
+```bash
+modus dev
 ```
 
-_See code: [src/commands/logout/index.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/logout/index.ts)_
+Link your Modus app repo to Hypermode
 
-### `hyp org switch`
-
-Switch the current Hypermode organization
-
-```sh
-hyp org switch
+```bash
+hyp link
 ```
 
-_See code: [src/commands/org/switch.ts](https://github.com/hypermodeinc/hyp-cli/blob/v0.0.1-alpha.1/src/commands/org/switch.ts)_
+## License
 
-<!-- commandsstop -->
+Hyp CLI is Copyright 2024 Hypermode Inc., and licensed under the terms of the Apache License, Version 2.0.
+See the [LICENSE](./LICENSE) file for a complete copy of the license.
