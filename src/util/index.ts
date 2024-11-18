@@ -85,7 +85,7 @@ export function getSlugFromName(name: string): string {
 export async function confirmOverwriteCiHypFile(): Promise<boolean> {
   return inquirer.confirm({
     default: true,
-    message: "A ci-hyp.yml file already exists. Would you like to overwrite it?",
+    message: "A ci-modus-build.yml file already exists. Would you like to overwrite it?",
   });
 }
 
@@ -118,7 +118,7 @@ export function getGithubWorkflowDir(): string {
 }
 
 export function getCiHypFilePath(): string {
-  return path.join(getGithubWorkflowDir(), "ci-hyp.yml");
+  return path.join(getGithubWorkflowDir(), "ci-modus-build.yml");
 }
 
 export function getGitConfigFilePath(): string {
