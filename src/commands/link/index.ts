@@ -190,14 +190,14 @@ export default class LinkIndex extends Command {
       // prompt if they want to replace it
       const confirmOverwrite = await confirmOverwriteCiHypFile();
       if (!confirmOverwrite) {
-        this.log(chalk.yellow("Skipping ci-hyp.yml creation."));
+        this.log(chalk.yellow("Skipping ci-modus-build.yml creation."));
         shouldCreateCIFile = false;
       }
     }
 
     if (shouldCreateCIFile) {
       await fs.writeFile(ciHypFilePath, ciStr, { flag: "w" });
-      this.log(chalk.green("Successfully created ci-hyp.yml! 🎉"));
+      this.log(chalk.green("Modus CI workflow added to your project. Commit this change to initiate a deployment to Hypermode."));
     }
 
     this.log(chalk.green("Linking complete! 🎉"));
