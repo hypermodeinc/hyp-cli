@@ -1,7 +1,7 @@
 {
   "name": "@hypermode/hyp-cli",
   "description": "The Hypermode CLI",
-  "version": "",
+  "version": "0.1.6",
   "author": "Hypermode Inc.",
   "license": "Apache-2.0",
   "homepage": "https://hypermode.com",
