@@ -45,9 +45,7 @@ else
 fi
 
 get_latest_version() {
-  local url="https://registry.npmjs.org/${PACKAGE_ORG:+$PACKAGE_ORG/}$PACKAGE_NAME"
-
-  curl --silent "$url" | jq -r '.["dist-tags"].latest'
+  npm show ${PACKAGE_ORG:+$PACKAGE_ORG/}$PACKAGE_NAME version
 }
 
 ARCHIVE_URL=""
