@@ -67,5 +67,8 @@
     "watch": "rm -rf dist && tsc -b -w",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "npm i && npm run build && oclif manifest"
+  },
+  "scarfSettings": {
+    "allowTopLevel": true
   }
 }
