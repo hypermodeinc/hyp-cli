@@ -131,6 +131,8 @@ export default class LinkIndex extends Command {
 
     const repoName = gitUrl.split("/")[4].replace(/\.git$/, "");
 
+    const repoFullName = `${gitOwner}/${repoName}`;
+
     let installationId = null;
 
     if (!settings.installationIds || !settings.installationIds[gitOwner]) {
@@ -160,20 +162,20 @@ export default class LinkIndex extends Command {
 
       if (confirmExistingProject) {
         selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
-        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoName);
+        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoFullName);
 
         this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
       } else {
         const projectName = await promptProjectName(projects);
-        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName);
+        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoFullName);
 
         this.log(chalk.green("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! 🎉"));
       }
     } else {
       const projectName = await promptProjectName(projects);
-      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoName);
+      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoFullName);
 
-      this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! Setting up CI workflow..."));
+      this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoFullName + "! Setting up CI workflow..."));
     }
 
     // add ci workflow to the repo if it doesn't already exist
