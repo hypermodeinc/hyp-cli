@@ -8,7 +8,7 @@
  */
 
 export const ciStr = `
-name: Build and publish Modus app
+name: ci-hypermode-functions
 
 on:
   workflow_dispatch:
