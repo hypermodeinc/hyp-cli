@@ -127,9 +127,7 @@ export default class LinkIndex extends Command {
       return;
     }
 
-    const gitOwner = gitUrl.split("/")[3];
-
-    const repoName = gitUrl.split("/")[4].replace(/\.git$/, "");
+    const { gitOwner, repoName } = parseGitUrl(gitUrl);
 
     const repoFullName = `${gitOwner}/${repoName}`;
 
@@ -257,3 +255,17 @@ const linkHTML = `<!-- src/commands/login/login.html -->
   </body>
 </html>
 `;
+
+function parseGitUrl(gitUrl: string) {
+  const regex = /^(?:git@|https:\/\/)([^:/]+)[:/]([^/]+)\/([^/]+?)(?:\.git)?$/;
+  const match = gitUrl.match(regex);
+
+  if (!match) {
+    throw new Error(`Invalid Git URL: ${gitUrl}`);
+  }
+
+  const gitOwner = match[2];
+  const repoName = match[3];
+
+  return { gitOwner, repoName };
+}

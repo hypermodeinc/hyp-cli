@@ -24,6 +24,8 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
 
   const response = await fetch(url, options);
 
+  console.log(jwt, response);
+
   const data: any = await response.json();
   return data;
 }
@@ -104,7 +106,7 @@ export async function sendGetRepoIdReq(jwt: string, installationId: string, gitU
   const query = `
       query getUserRepoIdByUrl {
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
-        }`;
+      }`;
 
   const data: any = await sendGraphQLReqToHypermode(jwt, query);
 
