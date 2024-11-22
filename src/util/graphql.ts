@@ -24,8 +24,6 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
 
   const response = await fetch(url, options);
 
-  console.log(jwt, response);
-
   const data: any = await response.json();
   return data;
 }
