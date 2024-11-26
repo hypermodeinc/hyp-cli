@@ -28,10 +28,10 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
   return data;
 }
 
-export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
+export async function sendMapRepoAndFinishProjectCreationReq(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
   const query = `
-    mutation CreateProjectRepo {
-      createProjectRepo(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM}) {
+    mutation MapRepoAndFinishProjectCreation {
+      mapRepoAndFinishProjectCreation(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM, defaultBranchName: "main"}) {
           id
           name
           repoId
@@ -40,7 +40,7 @@ export async function sendCreateProjectRepoReq(jwt: string, id: string, repoId: 
 
   const data: any = await sendGraphQLReqToHypermode(jwt, query);
 
-  const project: Project = data.data.createProjectRepo;
+  const project: Project = data.data.mapRepoAndFinishProjectCreation;
 
   return project;
 }
