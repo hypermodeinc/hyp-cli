@@ -15,7 +15,7 @@ import { URL } from "node:url";
 import open from "open";
 
 import { ciStr } from "../../util/ci.js";
-import { getProjectsByOrgReq, sendCreateProjectRepoReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
+import { getProjectsByOrgReq, sendMapRepoAndFinishProjectCreationReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
 import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile } from "../../util/index.js";
 
 export default class LinkIndex extends Command {
@@ -160,7 +160,7 @@ export default class LinkIndex extends Command {
 
       if (confirmExistingProject) {
         selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
-        const completedProject = await sendCreateProjectRepoReq(settings.jwt, selectedProject.id, repoId, repoFullName);
+        const completedProject = await sendMapRepoAndFinishProjectCreationReq(settings.jwt, selectedProject.id, repoId, repoFullName);
 
         this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
       } else {
