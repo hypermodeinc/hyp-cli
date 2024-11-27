@@ -125,6 +125,15 @@ export function getGitConfigFilePath(): string {
   return path.join(getGitDir(), "config");
 }
 
+export async function hasGitRemoteUrl(filePath: string): Promise<boolean> {
+  const content = await fs.readFile(filePath, "utf8");
+  const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/);
+  if (!remoteMatch) {
+    return false;
+  }
+
+  return true;
+}
 export async function getGitRemoteUrl(filePath: string): Promise<string> {
   const content = await fs.readFile(filePath, "utf8");
   const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/);

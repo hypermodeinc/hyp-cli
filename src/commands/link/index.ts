@@ -13,10 +13,12 @@ import * as fs from "../../util/fs.js";
 import * as http from "node:http";
 import { URL } from "node:url";
 import open from "open";
+import { execSync } from "child_process";
+import path from "path";
 
 import { ciStr } from "../../util/ci.js";
 import { getProjectsByOrgReq, sendMapRepoAndFinishProjectCreationReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
-import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile } from "../../util/index.js";
+import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile, hasGitRemoteUrl } from "../../util/index.js";
 
 export default class LinkIndex extends Command {
   static override args = {};
@@ -107,6 +109,20 @@ export default class LinkIndex extends Command {
 
     if (!(await fileExists(gitConfigFilePath))) {
       throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
+    }
+
+    const hasRemoteOrigin = await hasGitRemoteUrl(gitConfigFilePath);
+
+    if (!hasRemoteOrigin) {
+      this.log(chalk.red("`hyp link` requires a git remote to work"));
+      const gitRoot = execSync("git rev-parse --show-toplevel", { encoding: "utf-8" }).trim();
+      const projectName = path.basename(gitRoot);
+      this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
+      this.log(`And push your code:`);
+      this.log(`> git remote add origin <GIT_URL>`);
+      this.log(`> git push -u origin main`);
+
+      return;
     }
 
     const gitUrl = await getGitRemoteUrl(gitConfigFilePath);
