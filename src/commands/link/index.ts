@@ -116,7 +116,7 @@ export default class LinkIndex extends Command {
     try {
       currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
     } catch (error) {
-      this.log(chalk.red("Unable to determine the current branch. Are you inside a Git repository?"));
+      this.log(chalk.red("Unable to determine the current branch."));
       throw error;
     }
 
@@ -129,9 +129,9 @@ export default class LinkIndex extends Command {
       this.exit(1);
     }
 
-    const hasRemoteOrigin = await hasGitRemoteUrl(gitConfigFilePath);
+    const remoteUrl = await getGitRemoteUrl(gitConfigFilePath);
 
-    if (!hasRemoteOrigin) {
+    if (!remoteUrl) {
       this.log(chalk.red("`hyp link` requires a git remote to work"));
       const gitRoot = execSync("git rev-parse --show-toplevel", { encoding: "utf-8" }).trim();
       const projectName = path.basename(gitRoot);
@@ -142,8 +142,6 @@ export default class LinkIndex extends Command {
 
       this.exit(1);
     }
-
-    const gitUrl = await getGitRemoteUrl(gitConfigFilePath);
 
     // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
     // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
@@ -161,7 +159,7 @@ export default class LinkIndex extends Command {
       return;
     }
 
-    const { gitOwner, repoName } = parseGitUrl(gitUrl);
+    const { gitOwner, repoName } = parseGitUrl(remoteUrl);
 
     const repoFullName = `${gitOwner}/${repoName}`;
 
@@ -175,7 +173,7 @@ export default class LinkIndex extends Command {
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl);
+    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, remoteUrl);
 
     if (!repoId) {
       throw new Error("No repoId found for the given installationId and gitUrl");

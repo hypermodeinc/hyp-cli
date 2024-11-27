@@ -125,20 +125,12 @@ export function getGitConfigFilePath(): string {
   return path.join(getGitDir(), "config");
 }
 
-export async function hasGitRemoteUrl(filePath: string): Promise<boolean> {
+export async function getGitRemoteUrl(filePath: string): Promise<string | null> {
   const content = await fs.readFile(filePath, "utf8");
   const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/);
-  if (!remoteMatch) {
-    return false;
-  }
 
-  return true;
-}
-export async function getGitRemoteUrl(filePath: string): Promise<string> {
-  const content = await fs.readFile(filePath, "utf8");
-  const remoteMatch = content.match(/\[remote "origin"]\n\s+url = (.*)/);
   if (!remoteMatch) {
-    throw new Error(chalk.red("No remote origin found in .git/config, please set up a remote origin with `git remote add origin <url>`."));
+    return null;
   }
 
   return remoteMatch[1];
