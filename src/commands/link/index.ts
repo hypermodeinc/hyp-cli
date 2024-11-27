@@ -116,7 +116,8 @@ export default class LinkIndex extends Command {
     try {
       currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
     } catch (error) {
-      throw new Error(chalk.red("Unable to determine the current branch. Are you inside a Git repository?"));
+      this.log(chalk.red("Unable to determine the current branch. Are you inside a Git repository?"));
+      throw error;
     }
 
     if (currentBranch !== "main") {
