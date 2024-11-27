@@ -13,6 +13,8 @@ import * as fs from "../../util/fs.js";
 import * as http from "node:http";
 import { URL } from "node:url";
 import open from "open";
+import { execSync } from "child_process";
+import path from "path";
 
 import { ciStr } from "../../util/ci.js";
 import { getProjectsByOrgReq, sendMapRepoAndFinishProjectCreationReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
@@ -109,7 +111,37 @@ export default class LinkIndex extends Command {
       throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
     }
 
-    const gitUrl = await getGitRemoteUrl(gitConfigFilePath);
+    // Check if the current branch is 'main'
+    let currentBranch = "";
+    try {
+      currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
+    } catch (error) {
+      this.log(chalk.red("Unable to determine the current branch."));
+      throw error;
+    }
+
+    if (currentBranch !== "main") {
+      this.log(chalk.red("You must be on the 'main' branch to link your repository."));
+      this.log("Please switch to the 'main' branch:");
+      this.log(`  > ${chalk.blue("git checkout main")}`);
+      this.log("or rename your current branch to 'main'.");
+      this.log(`  > ${chalk.blue("git branch -m main")}`);
+      this.exit(1);
+    }
+
+    const remoteUrl = await getGitRemoteUrl(gitConfigFilePath);
+
+    if (!remoteUrl) {
+      this.log(chalk.red("`hyp link` requires a git remote to work"));
+      const gitRoot = execSync("git rev-parse --show-toplevel", { encoding: "utf-8" }).trim();
+      const projectName = path.basename(gitRoot);
+      this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
+      this.log(`And push your code:`);
+      this.log(`  > ${chalk.blue("git remote add origin <GIT_URL>)")}`);
+      this.log(`  > ${chalk.blue("git push -u origin main")}`);
+
+      this.exit(1);
+    }
 
     // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
     // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
@@ -127,7 +159,7 @@ export default class LinkIndex extends Command {
       return;
     }
 
-    const { gitOwner, repoName } = parseGitUrl(gitUrl);
+    const { gitOwner, repoName } = parseGitUrl(remoteUrl);
 
     const repoFullName = `${gitOwner}/${repoName}`;
 
@@ -141,7 +173,7 @@ export default class LinkIndex extends Command {
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, gitUrl);
+    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, remoteUrl);
 
     if (!repoId) {
       throw new Error("No repoId found for the given installationId and gitUrl");
