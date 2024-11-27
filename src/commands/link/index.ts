@@ -18,7 +18,7 @@ import path from "path";
 
 import { ciStr } from "../../util/ci.js";
 import { getProjectsByOrgReq, sendMapRepoAndFinishProjectCreationReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
-import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile, hasGitRemoteUrl } from "../../util/index.js";
+import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile } from "../../util/index.js";
 
 export default class LinkIndex extends Command {
   static override args = {};
