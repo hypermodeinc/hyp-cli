@@ -111,6 +111,23 @@ export default class LinkIndex extends Command {
       throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
     }
 
+    // Check if the current branch is 'main'
+    let currentBranch = "";
+    try {
+      currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
+    } catch (error) {
+      throw new Error(chalk.red("Unable to determine the current branch. Are you inside a Git repository?"));
+    }
+
+    if (currentBranch !== "main") {
+      this.log(chalk.red("You must be on the 'main' branch to link your repository."));
+      this.log("Please switch to the 'main' branch:");
+      this.log("  > git checkout main");
+      this.log("or rename your current branch to 'main'.");
+      this.log("  > git branch -m main");
+      this.exit(1);
+    }
+
     const hasRemoteOrigin = await hasGitRemoteUrl(gitConfigFilePath);
 
     if (!hasRemoteOrigin) {
@@ -119,10 +136,10 @@ export default class LinkIndex extends Command {
       const projectName = path.basename(gitRoot);
       this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
       this.log(`And push your code:`);
-      this.log(`> git remote add origin <GIT_URL>`);
-      this.log(`> git push -u origin main`);
+      this.log(`  > git remote add origin <GIT_URL>`);
+      this.log(`  > git push -u origin main`);
 
-      return;
+      this.exit(1);
     }
 
     const gitUrl = await getGitRemoteUrl(gitConfigFilePath);
