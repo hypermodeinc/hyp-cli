@@ -123,9 +123,9 @@ export default class LinkIndex extends Command {
     if (currentBranch !== "main") {
       this.log(chalk.red("You must be on the 'main' branch to link your repository."));
       this.log("Please switch to the 'main' branch:");
-      this.log("  > git checkout main");
+      this.log(`  > ${chalk.blue("git checkout main")}`);
       this.log("or rename your current branch to 'main'.");
-      this.log("  > git branch -m main");
+      this.log(`  > ${chalk.blue("git branch -m main")}`);
       this.exit(1);
     }
 
@@ -137,8 +137,8 @@ export default class LinkIndex extends Command {
       const projectName = path.basename(gitRoot);
       this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
       this.log(`And push your code:`);
-      this.log(`  > git remote add origin <GIT_URL>`);
-      this.log(`  > git push -u origin main`);
+      this.log(`  > ${chalk.blue("git remote add origin <GIT_URL>)")}`);
+      this.log(`  > ${chalk.blue("git push -u origin main")}`);
 
       this.exit(1);
     }
