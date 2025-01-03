@@ -1,4 +1,3 @@
-<!-- markdownlint-disable first-line-heading -->
 <div align="center">
   
   [![GitHub License](https://img.shields.io/github/license/hypermodeinc/hyp-cli)](https://github.com/hypermodeinc/hyp-cli?tab=Apache-2.0-1-ov-file#readme)
@@ -9,8 +8,10 @@
 </div>
 
 <p align="center">
-   <a href="https://docs.hypermode.com/quickstart">Get Started</a> · 
-   <a href="https://docs.hypermode.com/hyp-cli">Docs</a> · 
+   <a href="https://docs.hypermode.com/quickstart">Get Started</a>
+   <span> · </span>
+   <a href="https://docs.hypermode.com/hyp-cli">Docs</a>
+   <span> · </span>
    <a href="https://discord.hypermode.com">Discord</a>
 <p>
 
@@ -44,5 +45,5 @@ hyp link
 
 ## License
 
-Hyp CLI is Copyright 2024 Hypermode Inc., and licensed under the terms of the Apache License, Version 2.0.
-See the [LICENSE](./LICENSE) file for a complete copy of the license.
+Hyp CLI is Copyright 2024 Hypermode Inc., and licensed under the terms of the Apache License,
+Version 2.0. See the [LICENSE](./LICENSE) file for a complete copy of the license.
