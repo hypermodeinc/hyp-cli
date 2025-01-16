@@ -9,6 +9,7 @@
 
 import { Org, Project } from "../util/types.js";
 import { getSlugFromName } from "./index.js";
+import chalk from "chalk";
 
 export async function sendGraphQLReqToHypermode(jwt: string, query: string): Promise<any> {
   const url = "https://api.hypermode.com/graphql";
@@ -22,10 +23,23 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
     method: "POST",
   };
 
-  const response = await fetch(url, options);
+  try {
+    const response = await fetch(url, options);
 
-  const data: any = await response.json();
-  return data;
+    if (!response.ok) {
+      if (response.status === 401) {
+        console.error(`Unauthorized. Please try ${chalk.blueBright("hyp login")} again.`);
+        throw new Error("Unauthorized: Invalid or expired JWT token.");
+      } else {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      }
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    throw new Error(`Failed to send GraphQL request: ${error?.message}`);
+  }
 }
 
 export async function sendMapRepoAndFinishProjectCreationReq(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
