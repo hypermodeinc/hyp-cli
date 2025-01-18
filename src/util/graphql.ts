@@ -62,8 +62,8 @@ export async function sendMapRepoAndFinishProjectCreationReq(jwt: string, id: st
 export async function sendCreateProjectReq(jwt: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
   const slug = getSlugFromName(projectName);
   const query = `
-    mutation CreateProjectBranchBackend {
-      createProjectBranchBackend(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", slug: "${slug}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
+    mutation CreateProjectBranchRuntime {
+      createProjectBranchRuntime(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", slug: "${slug}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
       ) {
           id
           name
@@ -71,9 +71,9 @@ export async function sendCreateProjectReq(jwt: string, orgId: string, projectNa
       }
     }`;
 
-  const data: any = await sendGraphQLReqToHypermode(jwt, query);
+  const res: any = await sendGraphQLReqToHypermode(jwt, query);
 
-  const project: Project = data.data.createProjectBranchBackend;
+  const project: Project = res.data.createProjectBranchRuntime;
 
   return project;
 }
@@ -120,11 +120,11 @@ export async function sendGetRepoIdReq(jwt: string, installationId: string, gitU
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
       }`;
 
-  const data: any = await sendGraphQLReqToHypermode(jwt, query);
+  const res: any = await sendGraphQLReqToHypermode(jwt, query);
 
-  if (!data.data.getUserRepoIdByUrl) {
+  if (!res.data.getUserRepoIdByUrl) {
     throw new Error("No repoId found for the given installationId and gitUrl");
   }
 
-  return data.data.getUserRepoIdByUrl;
+  return res.data.getUserRepoIdByUrl;
 }
