@@ -22,16 +22,16 @@
   },
   "devDependencies": {
     "@eslint/js": "9.20.0",
-    "@oclif/test": "4.1.9",
+    "@oclif/test": "4.1.10",
     "@types/eslint__js": "8.42.3",
-    "@typescript-eslint/eslint-plugin": "8.24.0",
+    "@typescript-eslint/eslint-plugin": "8.24.1",
     "@types/node": "22.13.4",
     "eslint": "9.20.1",
     "oclif": "4.17.30",
     "prettier": "3.5.1",
     "ts-node": "10.9.2",
     "typescript": "5.7.3",
-    "typescript-eslint": "8.24.0"
+    "typescript-eslint": "8.24.1"
   },
   "files": [
     "/bin",
