@@ -7,13 +7,13 @@ import { Org, Project } from "../util/types.js";
 import { getSlugFromName } from "./index.js";
 import chalk from "chalk";
 
-export async function sendGraphQLReqToHypermode(jwt: string, query: string): Promise<any> {
-  const url = "https://api.hypermode.com/graphql";
+export async function sendGraphQLReqToHypermode(apiKey: string, query: string): Promise<any> {
+  const url = "http://localhost:9081/graphql";
 
   const options = {
     body: JSON.stringify({ query }),
     headers: {
-      Authorization: `${jwt}`,
+      "X-API-Key": apiKey,
       "Content-Type": "application/json",
     },
     method: "POST",
@@ -25,7 +25,7 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
     if (!response.ok) {
       if (response.status === 401) {
         console.error(`Unauthorized. Please try ${chalk.blueBright("hyp login")} again.`);
-        throw new Error("Unauthorized: Invalid or expired JWT token.");
+        throw new Error("Unauthorized: Invalid or expired API key.");
       } else {
         throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
       }
@@ -38,7 +38,7 @@ export async function sendGraphQLReqToHypermode(jwt: string, query: string): Pro
   }
 }
 
-export async function sendMapRepoAndFinishProjectCreationReq(jwt: string, id: string, repoId: string, repoName: string): Promise<Project> {
+export async function sendMapRepoAndFinishProjectCreationReq(apiKey: string, id: string, repoId: string, repoName: string): Promise<Project> {
   const query = `
     mutation MapRepoAndFinishProjectCreation {
       mapRepoAndFinishProjectCreation(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM, defaultBranchName: "main"}) {
@@ -48,14 +48,14 @@ export async function sendMapRepoAndFinishProjectCreationReq(jwt: string, id: st
       }
     }`;
 
-  const data: any = await sendGraphQLReqToHypermode(jwt, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query);
 
   const project: Project = data.data.mapRepoAndFinishProjectCreation;
 
   return project;
 }
 
-export async function sendCreateProjectReq(jwt: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
+export async function sendCreateProjectReq(apiKey: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
   const slug = getSlugFromName(projectName);
   const query = `
     mutation CreateProjectBranchRuntime {
@@ -67,14 +67,14 @@ export async function sendCreateProjectReq(jwt: string, orgId: string, projectNa
       }
     }`;
 
-  const res: any = await sendGraphQLReqToHypermode(jwt, query);
+  const res: any = await sendGraphQLReqToHypermode(apiKey, query);
 
   const project: Project = res.data.createProjectBranchRuntime;
 
   return project;
 }
 
-export async function sendGetOrgsReq(jwt: string): Promise<Org[]> {
+export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
   const query = `
       query GetOrgs {
         getOrgs {
@@ -83,14 +83,14 @@ export async function sendGetOrgsReq(jwt: string): Promise<Org[]> {
         }
     }`;
 
-  const data: any = await sendGraphQLReqToHypermode(jwt, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query);
 
   const orgs: Org[] = data.data.getOrgs;
 
   return orgs;
 }
 
-export async function getProjectsByOrgReq(jwt: string, orgId: string): Promise<Project[]> {
+export async function getProjectsByOrgReq(apiKey: string, orgId: string): Promise<Project[]> {
   const query = `
       query GetProjectsByOrg {
         getOrg(id: "${orgId}") {
@@ -103,20 +103,20 @@ export async function getProjectsByOrgReq(jwt: string, orgId: string): Promise<P
         }
     }`;
 
-  const data: any = await sendGraphQLReqToHypermode(jwt, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query);
 
   const projects: Project[] = data.data.getOrg.projects;
 
   return projects;
 }
 
-export async function sendGetRepoIdReq(jwt: string, installationId: string, gitUrl: string): Promise<string> {
+export async function sendGetRepoIdReq(apiKey: string, installationId: string, gitUrl: string): Promise<string> {
   const query = `
       query getUserRepoIdByUrl {
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
       }`;
 
-  const res: any = await sendGraphQLReqToHypermode(jwt, query);
+  const res: any = await sendGraphQLReqToHypermode(apiKey, query);
 
   if (!res.data.getUserRepoIdByUrl) {
     throw new Error("No repoId found for the given installationId and gitUrl");

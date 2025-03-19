@@ -159,7 +159,7 @@ export async function readSettingsJson(filePath: string): Promise<{ content: str
   };
 }
 
-export async function writeToSettingsFile(jwt: string, email: string, orgId: string): Promise<void> {
+export async function writeToSettingsFile(apiKey: string, email: string, orgId: string): Promise<void> {
   const settingsDir = getSettingsDir();
   const settingsFilePath = getSettingsFilePath();
 
@@ -168,9 +168,9 @@ export async function writeToSettingsFile(jwt: string, email: string, orgId: str
     await fs.mkdir(settingsDir, { recursive: true });
   }
 
-  const newSettingsContent: { HYP_EMAIL: string; HYP_JWT: string; HYP_ORG_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
+  const newSettingsContent: { HYP_EMAIL: string; HYP_API_KEY: string; HYP_ORG_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
     HYP_EMAIL: email,
-    HYP_JWT: jwt,
+    HYP_API_KEY: apiKey,
     HYP_ORG_ID: orgId,
     INSTALLATION_IDS: null,
   };
@@ -191,12 +191,7 @@ export async function writeGithubInstallationIdToSettingsFile(gitOwner: string, 
   settings.installationIds = settings.installationIds || {};
   settings.installationIds[gitOwner] = installationId;
 
-  const newSettingsContent = {
-    HYP_EMAIL: settings.email,
-    HYP_JWT: settings.jwt,
-    HYP_ORG_ID: settings.orgId,
-    INSTALLATION_IDS: settings.installationIds,
-  };
+  const newSettingsContent = { ...settings };
 
   await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), { flag: "w" });
 }
