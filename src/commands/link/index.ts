@@ -150,7 +150,7 @@ export default class LinkIndex extends Command {
 
     const settings = await readSettingsJson(settingsFilePath);
 
-    if (!settings.email || !settings.jwt || !settings.orgId) {
+    if (!settings.email || !settings.apiKey || !settings.orgId) {
       this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
       return;
     }
@@ -169,7 +169,7 @@ export default class LinkIndex extends Command {
     }
 
     // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(settings.jwt, installationId, remoteUrl);
+    const repoId = await sendGetRepoIdReq(settings.apiKey, installationId, remoteUrl);
 
     if (!repoId) {
       throw new Error("No repoId found for the given installationId and gitUrl");
@@ -177,7 +177,7 @@ export default class LinkIndex extends Command {
 
     // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
     // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
-    const projects = await getProjectsByOrgReq(settings.jwt, settings.orgId);
+    const projects = await getProjectsByOrgReq(settings.apiKey, settings.orgId);
 
     const projectsNoRepoId = projects.filter((project) => !project.repoId);
 
@@ -188,18 +188,18 @@ export default class LinkIndex extends Command {
 
       if (confirmExistingProject) {
         selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
-        const completedProject = await sendMapRepoAndFinishProjectCreationReq(settings.jwt, selectedProject.id, repoId, repoFullName);
+        const completedProject = await sendMapRepoAndFinishProjectCreationReq(settings.apiKey, selectedProject.id, repoId, repoFullName);
 
         this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
       } else {
         const projectName = await promptProjectName(projects);
-        const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoFullName);
+        const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
 
         this.log(chalk.green("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! 🎉"));
       }
     } else {
       const projectName = await promptProjectName(projects);
-      const newProject = await sendCreateProjectReq(settings.jwt, settings.orgId, projectName, repoId, repoFullName);
+      const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
 
       this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoFullName + "! Setting up CI workflow..."));
     }

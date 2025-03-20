@@ -132,18 +132,18 @@ export async function getGitRemoteUrl(filePath: string): Promise<string | null> 
   return remoteMatch[1];
 }
 
-export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; jwt: null | string; orgId: null | string }> {
+export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; apiKey: null | string; orgId: null | string }> {
   const content = await fs.readFile(filePath, "utf8");
 
   let email: null | string = null;
-  let jwt: null | string = null;
+  let apiKey: null | string = null;
   let orgId: null | string = null;
   let installationIds: { [key: string]: string } | null = null;
 
   try {
     const jsonContent = JSON.parse(content);
     email = jsonContent.HYP_EMAIL || null;
-    jwt = jsonContent.HYP_JWT || null;
+    apiKey = jsonContent.HYP_API_KEY || null;
     orgId = jsonContent.HYP_ORG_ID || null;
     installationIds = jsonContent.INSTALLATION_IDS || null;
   } catch {
@@ -154,7 +154,7 @@ export async function readSettingsJson(filePath: string): Promise<{ content: str
     content,
     email,
     installationIds,
-    jwt,
+    apiKey,
     orgId,
   };
 }
