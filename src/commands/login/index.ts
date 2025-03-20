@@ -90,7 +90,7 @@ export default class LoginIndex extends Command {
 
           if (!jwt || !email || !userId) {
             res.writeHead(400, { "Content-Type": "text/plain" });
-            res.end("JWT or email not found in the request.");
+            res.end("JWT, email, or userID not found in the request.");
             return;
           }
 
