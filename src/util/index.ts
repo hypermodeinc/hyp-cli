@@ -132,19 +132,19 @@ export async function getGitRemoteUrl(filePath: string): Promise<string | null> 
   return remoteMatch[1];
 }
 
-export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; apiKey: null | string; orgId: null | string }> {
+export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; apiKey: null | string; workspaceId: null | string }> {
   const content = await fs.readFile(filePath, "utf8");
 
   let email: null | string = null;
   let apiKey: null | string = null;
-  let orgId: null | string = null;
+  let workspaceId: null | string = null;
   let installationIds: { [key: string]: string } | null = null;
 
   try {
     const jsonContent = JSON.parse(content);
     email = jsonContent.HYP_EMAIL || null;
     apiKey = jsonContent.HYP_API_KEY || null;
-    orgId = jsonContent.HYP_ORG_ID || null;
+    workspaceId = jsonContent.HYP_WORKSPACE_ID || null;
     installationIds = jsonContent.INSTALLATION_IDS || null;
   } catch {
     // ignore error
@@ -155,11 +155,11 @@ export async function readSettingsJson(filePath: string): Promise<{ content: str
     email,
     installationIds,
     apiKey,
-    orgId,
+    workspaceId,
   };
 }
 
-export async function writeToSettingsFile(apiKey: string, email: string, orgId: string): Promise<void> {
+export async function writeToSettingsFile(apiKey: string, email: string, workspaceId: string): Promise<void> {
   const settingsDir = getSettingsDir();
   const settingsFilePath = getSettingsFilePath();
 
@@ -168,10 +168,10 @@ export async function writeToSettingsFile(apiKey: string, email: string, orgId: 
     await fs.mkdir(settingsDir, { recursive: true });
   }
 
-  const newSettingsContent: { HYP_EMAIL: string; HYP_API_KEY: string; HYP_ORG_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
+  const newSettingsContent: { HYP_EMAIL: string; HYP_API_KEY: string; HYP_WORKSPACE_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
     HYP_EMAIL: email,
     HYP_API_KEY: apiKey,
-    HYP_ORG_ID: orgId,
+    HYP_WORKSPACE_ID: workspaceId,
     INSTALLATION_IDS: null,
   };
 

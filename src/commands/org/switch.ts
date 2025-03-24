@@ -28,7 +28,7 @@ export default class OrgSwitch extends Command {
 
     const res = await readSettingsJson(settingsFilePath);
 
-    if (!res.email || !res.apiKey || !res.orgId) {
+    if (!res.email || !res.apiKey || !res.workspaceId) {
       this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
       return;
     }
