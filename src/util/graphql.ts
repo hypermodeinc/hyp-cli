@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Org, Project } from "../util/types.js";
+import { Org, App } from "../util/types.js";
 import { getSlugFromName } from "./index.js";
 import chalk from "chalk";
 
@@ -38,7 +38,35 @@ export async function sendGraphQLReqToHypermode(apiKey: string, query: string): 
   }
 }
 
-export async function sendMapRepoAndFinishProjectCreationReq(apiKey: string, id: string, repoId: string, repoName: string): Promise<Project> {
+/**
+ * Queries working with new Data Model
+ */
+export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
+  const query = `
+      query GetOrgs {
+        getOrgs {
+          id
+          slug
+          workspaces {
+            id
+            name
+            slug
+          }
+        }
+      }`;
+
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query);
+
+  const orgs: Org[] = data.data.getOrgs;
+
+  return orgs;
+}
+
+/**
+ * Queries not yet working with new Data Model
+ */
+
+export async function sendMapRepoAndFinishProjectCreationReq(apiKey: string, id: string, repoId: string, repoName: string): Promise<App> {
   const query = `
     mutation MapRepoAndFinishProjectCreation {
       mapRepoAndFinishProjectCreation(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM, defaultBranchName: "main"}) {
@@ -50,12 +78,12 @@ export async function sendMapRepoAndFinishProjectCreationReq(apiKey: string, id:
 
   const data: any = await sendGraphQLReqToHypermode(apiKey, query);
 
-  const project: Project = data.data.mapRepoAndFinishProjectCreation;
+  const project: App = data.data.mapRepoAndFinishProjectCreation;
 
   return project;
 }
 
-export async function sendCreateProjectReq(apiKey: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<Project> {
+export async function sendCreateProjectReq(apiKey: string, orgId: string, projectName: string, repoId: string, repoName: string): Promise<App> {
   const slug = getSlugFromName(projectName);
   const query = `
     mutation CreateProjectBranchRuntime {
@@ -69,28 +97,12 @@ export async function sendCreateProjectReq(apiKey: string, orgId: string, projec
 
   const res: any = await sendGraphQLReqToHypermode(apiKey, query);
 
-  const project: Project = res.data.createProjectBranchRuntime;
+  const project: App = res.data.createProjectBranchRuntime;
 
   return project;
 }
 
-export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
-  const query = `
-      query GetOrgs {
-        getOrgs {
-            id
-            slug
-        }
-    }`;
-
-  const data: any = await sendGraphQLReqToHypermode(apiKey, query);
-
-  const orgs: Org[] = data.data.getOrgs;
-
-  return orgs;
-}
-
-export async function getProjectsByOrgReq(apiKey: string, orgId: string): Promise<Project[]> {
+export async function getProjectsByOrgReq(apiKey: string, orgId: string): Promise<App[]> {
   const query = `
       query GetProjectsByOrg {
         getOrg(id: "${orgId}") {
@@ -105,7 +117,7 @@ export async function getProjectsByOrgReq(apiKey: string, orgId: string): Promis
 
   const data: any = await sendGraphQLReqToHypermode(apiKey, query);
 
-  const projects: Project[] = data.data.getOrg.projects;
+  const projects: App[] = data.data.getOrg.projects;
 
   return projects;
 }

@@ -131,7 +131,7 @@ export default class LoginIndex extends Command {
             try {
               const orgs = await sendGetOrgsReq(apiKey);
               const selectedOrg = await promptOrgSelection(orgs);
-              await writeToSettingsFile(apiKey, email, selectedOrg.id);
+              await writeToSettingsFile(apiKey, email, selectedOrg.workspaces[0].id);
               this.log("Successfully logged in as " + chalk.dim(email) + "! 🎉");
               resolve();
             } catch (error) {

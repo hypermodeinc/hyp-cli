@@ -11,7 +11,7 @@ import slugify from "@sindresorhus/slugify";
 import * as path from "node:path";
 import os from "node:os";
 
-import { Org, Project } from "../util/types.js";
+import { Org, App } from "../util/types.js";
 
 export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   const choices = orgs.map((org) => ({
@@ -21,17 +21,17 @@ export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   try {
     const selectedOrg = await inquirer.select({
       choices,
-      message: "Please select an organization:",
+      message: "Please select an workspace:",
     });
 
     return selectedOrg;
   } catch (error) {
-    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red("Organization selection prompt exited.")) : error;
+    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red("Workspace selection prompt exited.")) : error;
     throw error_;
   }
 }
 
-export async function promptProjectLinkSelection(projects: Project[]): Promise<Project> {
+export async function promptProjectLinkSelection(projects: App[]): Promise<App> {
   const choices = projects.map((project) => ({
     name: project.name,
     value: project,
@@ -49,7 +49,7 @@ export async function promptProjectLinkSelection(projects: Project[]): Promise<P
   }
 }
 
-export async function promptProjectName(projects: Project[]): Promise<string> {
+export async function promptProjectName(projects: App[]): Promise<string> {
   const projectName = await inquirer.input({
     message: "Creating a new project. Please enter a project name:",
   });

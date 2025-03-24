@@ -4,22 +4,17 @@
  */
 
 import { Command } from "@oclif/core";
-import chalk from "chalk";
-import * as fs from "../../util/fs.js";
 import * as http from "node:http";
 import { URL } from "node:url";
 import open from "open";
-import { execSync } from "child_process";
-import path from "path";
-
-import { ciStr } from "../../util/ci.js";
-import { getProjectsByOrgReq, sendMapRepoAndFinishProjectCreationReq, sendCreateProjectReq, sendGetRepoIdReq } from "../../util/graphql.js";
-import { confirmExistingProjectLink, confirmOverwriteCiHypFile, fileExists, getCiHypFilePath, getSettingsFilePath, getGitConfigFilePath, getGitRemoteUrl, getGithubWorkflowDir, promptProjectLinkSelection, promptProjectName, readSettingsJson, writeGithubInstallationIdToSettingsFile } from "../../util/index.js";
 
 export default class LinkIndex extends Command {
+  static override hidden = true;
+
   static override args = {};
 
-  static override description = "Link a repo with a Modus App to a Hypermode Project";
+  // static override description = "Link a repo with a Modus App to a Hypermode Project";
+  static override description = "Temporarily disabled during migration";
 
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
@@ -100,135 +95,138 @@ export default class LinkIndex extends Command {
   }
 
   public async run(): Promise<void> {
-    // check if the directory has a .git/config with a remote named 'origin', if not, throw an error and ask them to set that up
-    const gitConfigFilePath = getGitConfigFilePath();
+    this.error("Temporarily disabled during migration");
+    return;
 
-    if (!(await fileExists(gitConfigFilePath))) {
-      throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
-    }
+    // // check if the directory has a .git/config with a remote named 'origin', if not, throw an error and ask them to set that up
+    // const gitConfigFilePath = getGitConfigFilePath();
 
-    // Check if the current branch is 'main'
-    let currentBranch = "";
-    try {
-      currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
-    } catch (error) {
-      this.log(chalk.red("Unable to determine the current branch."));
-      throw error;
-    }
+    // if (!(await fileExists(gitConfigFilePath))) {
+    //   throw new Error(chalk.red("No .git found in this directory. Please initialize a git repository with `git init`."));
+    // }
 
-    if (currentBranch !== "main") {
-      this.log(chalk.red("You must be on the 'main' branch to link your repository."));
-      this.log("Please switch to the 'main' branch:");
-      this.log(`  > ${chalk.blue("git checkout main")}`);
-      this.log("or rename your current branch to 'main'.");
-      this.log(`  > ${chalk.blue("git branch -m main")}`);
-      this.exit(1);
-    }
+    // // Check if the current branch is 'main'
+    // let currentBranch = "";
+    // try {
+    //   currentBranch = execSync("git symbolic-ref --short HEAD", { encoding: "utf-8" }).trim();
+    // } catch (error) {
+    //   this.log(chalk.red("Unable to determine the current branch."));
+    //   throw error;
+    // }
 
-    const remoteUrl = await getGitRemoteUrl(gitConfigFilePath);
+    // if (currentBranch !== "main") {
+    //   this.log(chalk.red("You must be on the 'main' branch to link your repository."));
+    //   this.log("Please switch to the 'main' branch:");
+    //   this.log(`  > ${chalk.blue("git checkout main")}`);
+    //   this.log("or rename your current branch to 'main'.");
+    //   this.log(`  > ${chalk.blue("git branch -m main")}`);
+    //   this.exit(1);
+    // }
 
-    if (!remoteUrl) {
-      this.log(chalk.red("`hyp link` requires a git remote to work"));
-      const gitRoot = execSync("git rev-parse --show-toplevel", { encoding: "utf-8" }).trim();
-      const projectName = path.basename(gitRoot);
-      this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
-      this.log(`And push your code:`);
-      this.log(`  > ${chalk.blue("git remote add origin <GIT_URL>)")}`);
-      this.log(`  > ${chalk.blue("git push -u origin main")}`);
+    // const remoteUrl = await getGitRemoteUrl(gitConfigFilePath);
 
-      this.exit(1);
-    }
+    // if (!remoteUrl) {
+    //   this.log(chalk.red("`hyp link` requires a git remote to work"));
+    //   const gitRoot = execSync("git rev-parse --show-toplevel", { encoding: "utf-8" }).trim();
+    //   const projectName = path.basename(gitRoot);
+    //   this.log(`Please create a GitHub repository: https://github.com/new?name=${projectName}`);
+    //   this.log(`And push your code:`);
+    //   this.log(`  > ${chalk.blue("git remote add origin <GIT_URL>)")}`);
+    //   this.log(`  > ${chalk.blue("git push -u origin main")}`);
 
-    // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
-    // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
+    //   this.exit(1);
+    // }
 
-    const settingsFilePath = getSettingsFilePath();
-    if (!(await fileExists(settingsFilePath))) {
-      this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
-      return;
-    }
+    // // check the .hypermode/settings.json and see if there is a installationId with a key for the github owner. if there is,
+    // // continue, if not send them to github app installation page, and then go to callback server, and add installation id to settings.json
 
-    const settings = await readSettingsJson(settingsFilePath);
+    // const settingsFilePath = getSettingsFilePath();
+    // if (!(await fileExists(settingsFilePath))) {
+    //   this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
+    //   return;
+    // }
 
-    if (!settings.email || !settings.apiKey || !settings.orgId) {
-      this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
-      return;
-    }
+    // const settings = await readSettingsJson(settingsFilePath);
 
-    const { gitOwner, repoName } = parseGitUrl(remoteUrl);
+    // if (!settings.email || !settings.apiKey || !settings.orgId) {
+    //   this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
+    //   return;
+    // }
 
-    const repoFullName = `${gitOwner}/${repoName}`;
+    // const { gitOwner, repoName } = parseGitUrl(remoteUrl);
 
-    let installationId = null;
+    // const repoFullName = `${gitOwner}/${repoName}`;
 
-    if (!settings.installationIds || !settings.installationIds[gitOwner]) {
-      installationId = await this.getUserInstallationThroughAuthFlow();
-      await writeGithubInstallationIdToSettingsFile(gitOwner, installationId);
-    } else {
-      installationId = settings.installationIds[gitOwner];
-    }
+    // let installationId = null;
 
-    // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
-    const repoId = await sendGetRepoIdReq(settings.apiKey, installationId, remoteUrl);
+    // if (!settings.installationIds || !settings.installationIds[gitOwner]) {
+    //   installationId = await this.getUserInstallationThroughAuthFlow();
+    //   await writeGithubInstallationIdToSettingsFile(gitOwner, installationId);
+    // } else {
+    //   installationId = settings.installationIds[gitOwner];
+    // }
 
-    if (!repoId) {
-      throw new Error("No repoId found for the given installationId and gitUrl");
-    }
+    // // call hypermode getRepoId with the installationId and the git url, if it returns a repoId, continue, if not, throw an error
+    // const repoId = await sendGetRepoIdReq(settings.apiKey, installationId, remoteUrl);
 
-    // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
-    // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
-    const projects = await getProjectsByOrgReq(settings.apiKey, settings.orgId);
+    // if (!repoId) {
+    //   throw new Error("No repoId found for the given installationId and gitUrl");
+    // }
 
-    const projectsNoRepoId = projects.filter((project) => !project.repoId);
+    // // get list of the projects for the user in this org, if any have no repoId, ask if they want to link it, or give option of none.
+    // // If they pick an option, connect repo. If none, ask if they want to create a new project, prompt for name, and connect repoId to project
+    // const projects = await getProjectsByOrgReq(settings.apiKey, settings.orgId);
 
-    let selectedProject = null;
+    // const projectsNoRepoId = projects.filter((project) => !project.repoId);
 
-    if (projectsNoRepoId.length > 0) {
-      const confirmExistingProject = await confirmExistingProjectLink();
+    // let selectedProject = null;
 
-      if (confirmExistingProject) {
-        selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
-        const completedProject = await sendMapRepoAndFinishProjectCreationReq(settings.apiKey, selectedProject.id, repoId, repoFullName);
+    // if (projectsNoRepoId.length > 0) {
+    //   const confirmExistingProject = await confirmExistingProjectLink();
 
-        this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
-      } else {
-        const projectName = await promptProjectName(projects);
-        const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
+    //   if (confirmExistingProject) {
+    //     selectedProject = await promptProjectLinkSelection(projectsNoRepoId);
+    //     const completedProject = await sendMapRepoAndFinishProjectCreationReq(settings.apiKey, selectedProject.id, repoId, repoFullName);
 
-        this.log(chalk.green("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! 🎉"));
-      }
-    } else {
-      const projectName = await promptProjectName(projects);
-      const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
+    //     this.log(chalk.green("Successfully linked project " + completedProject.name + " to repo " + repoName + "! 🎉"));
+    //   } else {
+    //     const projectName = await promptProjectName(projects);
+    //     const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
 
-      this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoFullName + "! Setting up CI workflow..."));
-    }
+    //     this.log(chalk.green("Successfully created project " + newProject.name + " and linked it to repo " + repoName + "! 🎉"));
+    //   }
+    // } else {
+    //   const projectName = await promptProjectName(projects);
+    //   const newProject = await sendCreateProjectReq(settings.apiKey, settings.orgId, projectName, repoId, repoFullName);
 
-    // add ci workflow to the repo if it doesn't already exist
-    const githubWorkflowDir = getGithubWorkflowDir();
-    const ciHypFilePath = getCiHypFilePath();
+    //   this.log(chalk.blueBright("Successfully created project " + newProject.name + " and linked it to repo " + repoFullName + "! Setting up CI workflow..."));
+    // }
 
-    if (!(await fileExists(githubWorkflowDir))) {
-      // create the directory
-      await fs.mkdir(githubWorkflowDir, { recursive: true });
-    }
+    // // add ci workflow to the repo if it doesn't already exist
+    // const githubWorkflowDir = getGithubWorkflowDir();
+    // const ciHypFilePath = getCiHypFilePath();
 
-    let shouldCreateCIFile = true;
-    if (await fileExists(ciHypFilePath)) {
-      // prompt if they want to replace it
-      const confirmOverwrite = await confirmOverwriteCiHypFile();
-      if (!confirmOverwrite) {
-        this.log(chalk.yellow("Skipping ci-modus-build.yml creation."));
-        shouldCreateCIFile = false;
-      }
-    }
+    // if (!(await fileExists(githubWorkflowDir))) {
+    //   // create the directory
+    //   await fs.mkdir(githubWorkflowDir, { recursive: true });
+    // }
 
-    if (shouldCreateCIFile) {
-      await fs.writeFile(ciHypFilePath, ciStr, { flag: "w" });
-      this.log(chalk.green("Modus CI workflow added to your project. Commit this change to initiate a deployment to Hypermode."));
-    }
+    // let shouldCreateCIFile = true;
+    // if (await fileExists(ciHypFilePath)) {
+    //   // prompt if they want to replace it
+    //   const confirmOverwrite = await confirmOverwriteCiHypFile();
+    //   if (!confirmOverwrite) {
+    //     this.log(chalk.yellow("Skipping ci-modus-build.yml creation."));
+    //     shouldCreateCIFile = false;
+    //   }
+    // }
 
-    this.log(chalk.green("Linking complete! 🎉"));
+    // if (shouldCreateCIFile) {
+    //   await fs.writeFile(ciHypFilePath, ciStr, { flag: "w" });
+    //   this.log(chalk.green("Modus CI workflow added to your project. Commit this change to initiate a deployment to Hypermode."));
+    // }
+
+    // this.log(chalk.green("Linking complete! 🎉"));
   }
 }
 

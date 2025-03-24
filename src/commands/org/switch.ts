@@ -10,6 +10,7 @@ import { sendGetOrgsReq } from "../../util/graphql.js";
 import { fileExists, getSettingsFilePath, promptOrgSelection, readSettingsJson, writeToSettingsFile } from "../../util/index.js";
 
 export default class OrgSwitch extends Command {
+  static override hidden = true;
   static override args = {};
 
   static override description = "Switch the current Hypermode organization";
