@@ -21,17 +21,17 @@
     "open": "10.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.21.0",
-    "@oclif/test": "4.1.11",
+    "@eslint/js": "9.23.0",
+    "@oclif/test": "4.1.12",
     "@types/eslint__js": "8.42.3",
-    "@typescript-eslint/eslint-plugin": "8.24.1",
-    "@types/node": "22.13.5",
-    "eslint": "9.21.0",
-    "oclif": "4.17.31",
-    "prettier": "3.5.2",
+    "@typescript-eslint/eslint-plugin": "8.28.0",
+    "@types/node": "22.13.13",
+    "eslint": "9.23.0",
+    "oclif": "4.17.41",
+    "prettier": "3.5.3",
     "ts-node": "10.9.2",
-    "typescript": "5.7.3",
-    "typescript-eslint": "8.24.1"
+    "typescript": "5.8.2",
+    "typescript-eslint": "8.28.0"
   },
   "files": [
     "/bin",
