@@ -8,7 +8,7 @@ import { getSlugFromName } from "./index.js";
 import chalk from "chalk";
 
 export async function sendGraphQLReqToHypermode(apiKey: string, query: string): Promise<any> {
-  const url = "http://localhost:9081/graphql";
+  const url = "https://api.hypermode.com/graphql";
 
   const options = {
     body: JSON.stringify({ query }),
