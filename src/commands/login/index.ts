@@ -75,7 +75,7 @@ export default class LoginIndex extends Command {
 
   public async openLoginPage() {
     // Open the Hypermode sign-in page in the default browser
-    const loginUrl = "https://hypermode.com/app/callback?port=5051&type=cli";
+    const loginUrl = "http://localhost:3000/callback?port=5051&type=cli";
     await open(loginUrl);
   }
 
@@ -86,11 +86,33 @@ export default class LoginIndex extends Command {
           const url = new URL(req.url ?? "", `http://${req.headers.host}`);
           const jwt = url.searchParams.get("jwt");
           const email = url.searchParams.get("email");
+          const userId = url.searchParams.get("user");
 
-          if (!jwt || !email) {
+          if (!jwt || !email || !userId) {
             res.writeHead(400, { "Content-Type": "text/plain" });
-            res.end("JWT or email not found in the request.");
+            res.end("JWT, email, or userID not found in the request.");
             return;
+          }
+
+          const response = await fetch("http://localhost:3000/api/api-key/create", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId,
+              name: "CLI Access Key",
+              expiresIn: 60 * 60 * 24 * 7, // 7 days
+              prefix: "cli",
+            }),
+          });
+
+          const { data, error } = await response.json();
+          const apiKey = data.key;
+
+          if (!apiKey || error) {
+            throw new Error(error);
           }
 
           res.writeHead(200, { "Content-Type": "text/html" });
@@ -107,9 +129,9 @@ export default class LoginIndex extends Command {
             }
 
             try {
-              const orgs = await sendGetOrgsReq(jwt);
+              const orgs = await sendGetOrgsReq(apiKey);
               const selectedOrg = await promptOrgSelection(orgs);
-              await writeToSettingsFile(jwt, email, selectedOrg.id);
+              await writeToSettingsFile(apiKey, email, selectedOrg.workspaces[0].id);
               this.log("Successfully logged in as " + chalk.dim(email) + "! 🎉");
               resolve();
             } catch (error) {

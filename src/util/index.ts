@@ -11,7 +11,7 @@ import slugify from "@sindresorhus/slugify";
 import * as path from "node:path";
 import os from "node:os";
 
-import { Org, Project } from "../util/types.js";
+import { Org, App } from "../util/types.js";
 
 export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   const choices = orgs.map((org) => ({
@@ -21,17 +21,17 @@ export async function promptOrgSelection(orgs: Org[]): Promise<Org> {
   try {
     const selectedOrg = await inquirer.select({
       choices,
-      message: "Please select an organization:",
+      message: "Please select an workspace:",
     });
 
     return selectedOrg;
   } catch (error) {
-    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red("Organization selection prompt exited.")) : error;
+    const error_ = error instanceof ExitPromptError ? new TypeError(chalk.red("Workspace selection prompt exited.")) : error;
     throw error_;
   }
 }
 
-export async function promptProjectLinkSelection(projects: Project[]): Promise<Project> {
+export async function promptProjectLinkSelection(projects: App[]): Promise<App> {
   const choices = projects.map((project) => ({
     name: project.name,
     value: project,
@@ -49,7 +49,7 @@ export async function promptProjectLinkSelection(projects: Project[]): Promise<P
   }
 }
 
-export async function promptProjectName(projects: Project[]): Promise<string> {
+export async function promptProjectName(projects: App[]): Promise<string> {
   const projectName = await inquirer.input({
     message: "Creating a new project. Please enter a project name:",
   });
@@ -132,19 +132,19 @@ export async function getGitRemoteUrl(filePath: string): Promise<string | null> 
   return remoteMatch[1];
 }
 
-export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; jwt: null | string; orgId: null | string }> {
+export async function readSettingsJson(filePath: string): Promise<{ content: string; email: null | string; installationIds: { [key: string]: string } | null; apiKey: null | string; workspaceId: null | string }> {
   const content = await fs.readFile(filePath, "utf8");
 
   let email: null | string = null;
-  let jwt: null | string = null;
-  let orgId: null | string = null;
+  let apiKey: null | string = null;
+  let workspaceId: null | string = null;
   let installationIds: { [key: string]: string } | null = null;
 
   try {
     const jsonContent = JSON.parse(content);
     email = jsonContent.HYP_EMAIL || null;
-    jwt = jsonContent.HYP_JWT || null;
-    orgId = jsonContent.HYP_ORG_ID || null;
+    apiKey = jsonContent.HYP_API_KEY || null;
+    workspaceId = jsonContent.HYP_WORKSPACE_ID || null;
     installationIds = jsonContent.INSTALLATION_IDS || null;
   } catch {
     // ignore error
@@ -154,12 +154,12 @@ export async function readSettingsJson(filePath: string): Promise<{ content: str
     content,
     email,
     installationIds,
-    jwt,
-    orgId,
+    apiKey,
+    workspaceId,
   };
 }
 
-export async function writeToSettingsFile(jwt: string, email: string, orgId: string): Promise<void> {
+export async function writeToSettingsFile(apiKey: string, email: string, workspaceId: string): Promise<void> {
   const settingsDir = getSettingsDir();
   const settingsFilePath = getSettingsFilePath();
 
@@ -168,10 +168,10 @@ export async function writeToSettingsFile(jwt: string, email: string, orgId: str
     await fs.mkdir(settingsDir, { recursive: true });
   }
 
-  const newSettingsContent: { HYP_EMAIL: string; HYP_JWT: string; HYP_ORG_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
+  const newSettingsContent: { HYP_EMAIL: string; HYP_API_KEY: string; HYP_WORKSPACE_ID: string; INSTALLATION_IDS: { [key: string]: string } | null } = {
     HYP_EMAIL: email,
-    HYP_JWT: jwt,
-    HYP_ORG_ID: orgId,
+    HYP_API_KEY: apiKey,
+    HYP_WORKSPACE_ID: workspaceId,
     INSTALLATION_IDS: null,
   };
 
@@ -191,12 +191,7 @@ export async function writeGithubInstallationIdToSettingsFile(gitOwner: string, 
   settings.installationIds = settings.installationIds || {};
   settings.installationIds[gitOwner] = installationId;
 
-  const newSettingsContent = {
-    HYP_EMAIL: settings.email,
-    HYP_JWT: settings.jwt,
-    HYP_ORG_ID: settings.orgId,
-    INSTALLATION_IDS: settings.installationIds,
-  };
+  const newSettingsContent = { ...settings };
 
   await fs.writeFile(settingsFilePath, JSON.stringify(newSettingsContent, null, 2), { flag: "w" });
 }
