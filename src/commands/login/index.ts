@@ -75,7 +75,7 @@ export default class LoginIndex extends Command {
 
   public async openLoginPage() {
     // Open the Hypermode sign-in page in the default browser
-    const loginUrl = "http://localhost:3000/callback?port=5051&type=cli";
+    const loginUrl = "https://hypermode.com/callback?port=5051&type=cli";
     await open(loginUrl);
   }
 
@@ -94,7 +94,7 @@ export default class LoginIndex extends Command {
             return;
           }
 
-          const response = await fetch("http://localhost:3000/api/api-key/create", {
+          const response = await fetch("https://hypermode.com/api/api-key/create", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${jwt}`,
