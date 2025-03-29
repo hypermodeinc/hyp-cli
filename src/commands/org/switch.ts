@@ -10,6 +10,7 @@ import { sendGetOrgsReq } from "../../util/graphql.js";
 import { fileExists, getSettingsFilePath, promptOrgSelection, readSettingsJson, writeToSettingsFile } from "../../util/index.js";
 
 export default class OrgSwitch extends Command {
+  static override hidden = true;
   static override args = {};
 
   static override description = "Switch the current Hypermode organization";
@@ -27,14 +28,14 @@ export default class OrgSwitch extends Command {
 
     const res = await readSettingsJson(settingsFilePath);
 
-    if (!res.email || !res.jwt || !res.orgId) {
+    if (!res.email || !res.apiKey || !res.workspaceId) {
       this.log(chalk.red("Not logged in.") + " Log in with `hyp login`.");
       return;
     }
 
-    const orgs = await sendGetOrgsReq(res.jwt);
+    const orgs = await sendGetOrgsReq(res.apiKey);
     const selectedOrg = await promptOrgSelection(orgs);
 
-    await writeToSettingsFile(res.jwt, res.email, selectedOrg.id);
+    await writeToSettingsFile(res.apiKey, res.email, selectedOrg.id);
   }
 }

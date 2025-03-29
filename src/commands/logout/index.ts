@@ -38,7 +38,7 @@ export default class LogoutIndex extends Command {
 
     const newSettingsContent = {
       HYP_EMAIL: null,
-      HYP_JWT: null,
+      HYP_API_KEY: null,
       HYP_ORG_ID: null,
       INSTALLATION_IDS: res.installationIds,
     };

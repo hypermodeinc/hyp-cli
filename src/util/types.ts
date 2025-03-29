@@ -5,11 +5,19 @@
 
 export type Org = {
   id: string;
-  projects: Project[];
+  name: string;
   slug: string;
+  workspaces: Workspace[];
 };
 
-export type Project = {
+export type Workspace = {
+  id: string;
+  name: string;
+  slug: string;
+  apps: App[];
+};
+
+export type App = {
   id: string;
   name: string;
   repoId: null | string;
