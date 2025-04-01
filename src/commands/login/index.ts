@@ -103,7 +103,7 @@ export default class LoginIndex extends Command {
             body: JSON.stringify({
               userId,
               name: "CLI Access Key",
-              expiresIn: 60 * 60 * 24 * 7, // 7 days
+              expiresIn: 60 * 60 * 24 * 365, // 365 days
               prefix: "cli",
             }),
           });
