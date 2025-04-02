@@ -10,7 +10,7 @@ import { URL } from "node:url";
 import open from "open";
 
 import { sendGetOrgsReq } from "../../util/graphql.js";
-import { writeToSettingsFile, promptOrgSelection } from "../../util/index.js";
+import { writeToSettingsFile, promptOrgSelection, readSettingsJson, getSettingsFilePath } from "../../util/index.js";
 
 const loginHTML = `<!-- src/commands/login/login.html -->
 <!DOCTYPE html>
@@ -80,6 +80,31 @@ export default class LoginIndex extends Command {
   }
 
   public async run(): Promise<void> {
+    const settings = await readSettingsJson(getSettingsFilePath());
+    const apiKey = settings.apiKey;
+
+    if (apiKey) {
+      const verifyResponse = await fetch("https://hypermode.com/api/api-key/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          key: apiKey,
+        }),
+      });
+
+      const verifyResponseJson = await verifyResponse.json();
+
+      if (verifyResponseJson.valid) {
+        this.log("You are already logged in as " + chalk.dim(settings.email) + "! 🎉");
+        return;
+      }
+      if (verifyResponseJson.error) {
+        this.log("Your API key is invalid or expired. Please log in again.");
+      }
+    }
+
     return new Promise((resolve, reject) => {
       const server = http.createServer(async (req, res) => {
         try {
