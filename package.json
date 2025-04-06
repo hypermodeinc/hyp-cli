@@ -21,12 +21,12 @@
 		"open": "10.1.0"
 	},
 	"devDependencies": {
-		"@oclif/test": "4.1.11",
-		"@types/node": "22.13.5",
-		"oclif": "4.17.31",
-		"prettier": "3.5.2",
+		"@oclif/test": "4.1.12",
+		"@types/node": "22.14.0",
+		"oclif": "4.17.42",
+		"prettier": "3.5.3",
 		"ts-node": "10.9.2",
-		"typescript": "5.7.3"
+		"typescript": "5.8.2"
 	},
 	"files": ["/bin", "/dist", "/oclif.manifest.json"],
 	"keywords": ["Hypermode", "CLI"],
