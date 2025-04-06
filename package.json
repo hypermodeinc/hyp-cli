@@ -1,60 +1,60 @@
 {
-	"name": "@hypermode/hyp-cli",
-	"description": "The Hypermode CLI",
-	"version": "",
-	"author": "Hypermode Inc.",
-	"license": "Apache-2.0",
-	"homepage": "https://hypermode.com",
-	"bin": {
-		"hyp": "./bin/run.js"
-	},
-	"repository": "github:hypermodeinc/hyp-cli",
-	"bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
-	"dependencies": {
-		"@inquirer/core": "10.1.9",
-		"@inquirer/prompts": "7.4.0",
-		"@oclif/core": "4.2.10",
-		"@scarf/scarf": "1.4.0",
-		"@sindresorhus/slugify": "2.2.1",
-		"chalk": "5.4.1",
-		"gradient-string": "3.0.0",
-		"open": "10.1.0"
-	},
-	"devDependencies": {
-		"@oclif/test": "4.1.12",
-		"@types/node": "22.14.0",
-		"oclif": "4.17.42",
-		"prettier": "3.5.3",
-		"ts-node": "10.9.2",
-		"typescript": "5.8.2"
-	},
-	"files": ["/bin", "/dist", "/oclif.manifest.json"],
-	"keywords": ["Hypermode", "CLI"],
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"type": "module",
-	"oclif": {
-		"bin": "hyp",
-		"dirname": "hyp",
-		"helpClass": "./dist/custom/help",
-		"commands": "./dist/commands",
-		"plugins": [],
-		"topicSeparator": " ",
-		"topics": {
-			"org": {
-				"description": "Manage your Hypermode organization"
-			}
-		}
-	},
-	"scripts": {
-		"lint": "trunk check",
-		"pack": "npm pack",
-		"build": "rm -rf dist && tsc -b",
-		"watch": "rm -rf dist && tsc -b -w",
-		"postpack": "rm -f oclif.manifest.json",
-		"prepack": "npm i && npm run build && oclif manifest"
-	},
-	"scarfSettings": {
-		"allowTopLevel": true
-	}
+  "name": "@hypermode/hyp-cli",
+  "description": "The Hypermode CLI",
+  "version": "",
+  "author": "Hypermode Inc.",
+  "license": "Apache-2.0",
+  "homepage": "https://hypermode.com",
+  "bin": {
+    "hyp": "./bin/run.js"
+  },
+  "repository": "github:hypermodeinc/hyp-cli",
+  "bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
+  "dependencies": {
+    "@inquirer/core": "10.1.9",
+    "@inquirer/prompts": "7.4.0",
+    "@oclif/core": "4.2.10",
+    "@scarf/scarf": "1.4.0",
+    "@sindresorhus/slugify": "2.2.1",
+    "chalk": "5.4.1",
+    "gradient-string": "3.0.0",
+    "open": "10.1.0"
+  },
+  "devDependencies": {
+    "@oclif/test": "4.1.12",
+    "@types/node": "22.14.0",
+    "oclif": "4.17.42",
+    "prettier": "3.5.3",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.2"
+  },
+  "files": ["/bin", "/dist", "/oclif.manifest.json"],
+  "keywords": ["Hypermode", "CLI"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "oclif": {
+    "bin": "hyp",
+    "dirname": "hyp",
+    "helpClass": "./dist/custom/help",
+    "commands": "./dist/commands",
+    "plugins": [],
+    "topicSeparator": " ",
+    "topics": {
+      "org": {
+        "description": "Manage your Hypermode organization"
+      }
+    }
+  },
+  "scripts": {
+    "lint": "trunk check",
+    "pack": "npm pack",
+    "build": "rm -rf dist && tsc -b",
+    "watch": "rm -rf dist && tsc -b -w",
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "npm i && npm run build && oclif manifest"
+  },
+  "scarfSettings": {
+    "allowTopLevel": true
+  }
 }

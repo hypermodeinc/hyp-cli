@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as http from "node:http";
-import { URL } from "node:url";
-import { Command } from "@oclif/core";
-import chalk from "chalk";
-import open from "open";
+import * as http from 'node:http'
+import { URL } from 'node:url'
+import { Command } from '@oclif/core'
+import chalk from 'chalk'
+import open from 'open'
 
-import { sendGetOrgsReq } from "../../util/graphql.js";
+import { sendGetOrgsReq } from '../../util/graphql.js'
 import {
-	getSettingsFilePath,
-	promptOrgSelection,
-	readSettingsJson,
-	writeToSettingsFile,
-} from "../../util/index.js";
+  getSettingsFilePath,
+  promptOrgSelection,
+  readSettingsJson,
+  writeToSettingsFile,
+} from '../../util/index.js'
 
 const loginHTML = `<!-- src/commands/login/login.html -->
 <!DOCTYPE html>
@@ -67,157 +67,155 @@ const loginHTML = `<!-- src/commands/login/login.html -->
     <p>You can now close this window and return to the terminal.</p>
   </body>
 </html>
-`;
+`
 
 export default class LoginIndex extends Command {
-	static override args = {};
+  static override args = {}
 
-	static override description = "Log into Hypermode";
+  static override description = 'Log into Hypermode'
 
-	static override examples = ["<%= config.bin %> <%= command.id %>"];
+  static override examples = ['<%= config.bin %> <%= command.id %>']
 
-	static override flags = {};
+  static override flags = {}
 
-	public async openLoginPage() {
-		// Open the Hypermode sign-in page in the default browser
-		const loginUrl = "https://hypermode.com/callback?port=5051&type=cli";
-		await open(loginUrl);
-	}
+  public async openLoginPage() {
+    // Open the Hypermode sign-in page in the default browser
+    const loginUrl = 'https://hypermode.com/callback?port=5051&type=cli'
+    await open(loginUrl)
+  }
 
-	public async run(): Promise<void> {
-		const settings = await readSettingsJson(getSettingsFilePath());
-		const apiKey = settings.apiKey;
+  public async run(): Promise<void> {
+    const settings = await readSettingsJson(getSettingsFilePath())
+    const apiKey = settings.apiKey
 
-		if (apiKey) {
-			const verifyResponse = await fetch(
-				"https://hypermode.com/api/api-key/verify",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						key: apiKey,
-					}),
-				},
-			);
+    if (apiKey) {
+      const verifyResponse = await fetch(
+        'https://hypermode.com/api/api-key/verify',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            key: apiKey,
+          }),
+        },
+      )
 
-			const verifyResponseJson = await verifyResponse.json();
+      const verifyResponseJson = await verifyResponse.json()
 
-			if (verifyResponseJson.valid) {
-				this.log(
-					"You are already logged in as " + chalk.dim(settings.email) + "! 🎉",
-				);
-				return;
-			}
-			if (verifyResponseJson.error) {
-				this.log("Your API key is invalid or expired. Please log in again.");
-			}
-		}
+      if (verifyResponseJson.valid) {
+        this.log(
+          'You are already logged in as ' + chalk.dim(settings.email) + '! 🎉',
+        )
+        return
+      }
+      if (verifyResponseJson.error) {
+        this.log('Your API key is invalid or expired. Please log in again.')
+      }
+    }
 
-		return new Promise((resolve, reject) => {
-			const server = http.createServer(async (req, res) => {
-				try {
-					const url = new URL(req.url ?? "", `http://${req.headers.host}`);
-					const jwt = url.searchParams.get("jwt");
-					const email = url.searchParams.get("email");
-					const userId = url.searchParams.get("user");
+    return new Promise((resolve, reject) => {
+      const server = http.createServer(async (req, res) => {
+        try {
+          const url = new URL(req.url ?? '', `http://${req.headers.host}`)
+          const jwt = url.searchParams.get('jwt')
+          const email = url.searchParams.get('email')
+          const userId = url.searchParams.get('user')
 
-					if (!jwt || !email || !userId) {
-						res.writeHead(400, { "Content-Type": "text/plain" });
-						res.end("JWT, email, or userID not found in the request.");
-						return;
-					}
+          if (!jwt || !email || !userId) {
+            res.writeHead(400, { 'Content-Type': 'text/plain' })
+            res.end('JWT, email, or userID not found in the request.')
+            return
+          }
 
-					const response = await fetch(
-						"https://hypermode.com/api/api-key/create",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${jwt}`,
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
-								userId,
-								name: "CLI Access Key",
-								expiresIn: 60 * 60 * 24 * 365, // 365 days
-								prefix: "cli",
-							}),
-						},
-					);
+          const response = await fetch(
+            'https://hypermode.com/api/api-key/create',
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${jwt}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userId,
+                name: 'CLI Access Key',
+                expiresIn: 60 * 60 * 24 * 365, // 365 days
+                prefix: 'cli',
+              }),
+            },
+          )
 
-					const { data, error } = await response.json();
-					const apiKey = data.key;
+          const { data, error } = await response.json()
+          const apiKey = data.key
 
-					if (!apiKey || error) {
-						throw new Error(error);
-					}
+          if (!apiKey || error) {
+            throw new Error(error)
+          }
 
-					res.writeHead(200, { "Content-Type": "text/html" });
-					res.end(loginHTML);
+          res.writeHead(200, { 'Content-Type': 'text/html' })
+          res.end(loginHTML)
 
-					// Close all existing connections
-					server.closeAllConnections();
+          // Close all existing connections
+          server.closeAllConnections()
 
-					// Close the server and wait for it to actually close
-					server.close(async (err) => {
-						if (err) {
-							reject(err);
-							return;
-						}
+          // Close the server and wait for it to actually close
+          server.close(async (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
 
-						try {
-							const orgs = await sendGetOrgsReq(apiKey);
-							const selectedOrg = await promptOrgSelection(orgs);
-							await writeToSettingsFile(
-								apiKey,
-								email,
-								selectedOrg.workspaces[0].id,
-							);
-							this.log(
-								"Successfully logged in as " + chalk.dim(email) + "! 🎉",
-							);
-							resolve();
-						} catch (error) {
-							reject(error);
-						}
-					});
-				} catch (error) {
-					res.writeHead(500, { "Content-Type": "text/plain" });
-					res.end("An error occurred during authentication.");
-					reject(error);
-				}
-			});
+            try {
+              const orgs = await sendGetOrgsReq(apiKey)
+              const selectedOrg = await promptOrgSelection(orgs)
+              await writeToSettingsFile(
+                apiKey,
+                email,
+                selectedOrg.workspaces[0].id,
+              )
+              this.log('Successfully logged in as ' + chalk.dim(email) + '! 🎉')
+              resolve()
+            } catch (error) {
+              reject(error)
+            }
+          })
+        } catch (error) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' })
+          res.end('An error occurred during authentication.')
+          reject(error)
+        }
+      })
 
-			// Set a timeout for the server
-			const timeoutDuration = 300_000; // 300 seconds in milliseconds
-			const timeout = setTimeout(() => {
-				server.closeAllConnections();
-				server.close();
-				reject(new Error("Authentication timed out. Please try again."));
-			}, timeoutDuration);
+      // Set a timeout for the server
+      const timeoutDuration = 300_000 // 300 seconds in milliseconds
+      const timeout = setTimeout(() => {
+        server.closeAllConnections()
+        server.close()
+        reject(new Error('Authentication timed out. Please try again.'))
+      }, timeoutDuration)
 
-			// Listen on port 5051 for the redirect
-			server.listen(5051, "localhost", async () => {
-				try {
-					this.log("Opening login page...");
-					await this.openLoginPage();
-				} catch (error) {
-					server.close();
-					reject(error);
-				}
-			});
+      // Listen on port 5051 for the redirect
+      server.listen(5051, 'localhost', async () => {
+        try {
+          this.log('Opening login page...')
+          await this.openLoginPage()
+        } catch (error) {
+          server.close()
+          reject(error)
+        }
+      })
 
-			// Ensure the timeout is cleared if the server closes successfully
-			server.on("close", () => {
-				clearTimeout(timeout);
-			});
+      // Ensure the timeout is cleared if the server closes successfully
+      server.on('close', () => {
+        clearTimeout(timeout)
+      })
 
-			// Handle server errors
-			server.on("error", (error) => {
-				clearTimeout(timeout);
-				reject(error);
-			});
-		});
-	}
+      // Handle server errors
+      server.on('error', (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
+    })
+  }
 }

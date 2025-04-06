@@ -3,53 +3,51 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import chalk from "chalk";
-import type { App, Org } from "../util/types.js";
-import { getSlugFromName } from "./index.js";
+import chalk from 'chalk'
+import type { App, Org } from '../util/types.js'
+import { getSlugFromName } from './index.js'
 
 export async function sendGraphQLReqToHypermode(
-	apiKey: string,
-	query: string,
+  apiKey: string,
+  query: string,
 ): Promise<any> {
-	const url = "https://api.hypermode.com/graphql";
+  const url = 'https://api.hypermode.com/graphql'
 
-	const options = {
-		body: JSON.stringify({ query }),
-		headers: {
-			"X-API-Key": apiKey,
-			"Content-Type": "application/json",
-		},
-		method: "POST",
-	};
+  const options = {
+    body: JSON.stringify({ query }),
+    headers: {
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  }
 
-	try {
-		const response = await fetch(url, options);
+  try {
+    const response = await fetch(url, options)
 
-		if (!response.ok) {
-			if (response.status === 401) {
-				console.error(
-					`Unauthorized. Please try ${chalk.blueBright("hyp login")} again.`,
-				);
-				throw new Error("Unauthorized: Invalid or expired API key.");
-			} else {
-				throw new Error(
-					`HTTP Error: ${response.status} ${response.statusText}`,
-				);
-			}
-		}
+    if (!response.ok) {
+      if (response.status === 401) {
+        console.error(
+          `Unauthorized. Please try ${chalk.blueBright('hyp login')} again.`,
+        )
+        throw new Error('Unauthorized: Invalid or expired API key.')
+      } else {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`)
+      }
+    }
 
-		const data = await response.json();
-		return data;
-	} catch (error: any) {
-		throw new Error(`Failed to send GraphQL request: ${error?.message}`);
-	}
+    const data = await response.json()
+    return data
+  } catch (error: any) {
+    throw new Error(`Failed to send GraphQL request: ${error?.message}`)
+  }
 }
 
 /**
  * Queries working with new Data Model
  */
 export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
-	const query = `
+  const query = `
       query GetOrgs {
         getOrgs {
           id
@@ -60,13 +58,13 @@ export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
             slug
           }
         }
-      }`;
+      }`
 
-	const data: any = await sendGraphQLReqToHypermode(apiKey, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query)
 
-	const orgs: Org[] = data.data.getOrgs;
+  const orgs: Org[] = data.data.getOrgs
 
-	return orgs;
+  return orgs
 }
 
 /**
@@ -74,36 +72,36 @@ export async function sendGetOrgsReq(apiKey: string): Promise<Org[]> {
  */
 
 export async function sendMapRepoAndFinishProjectCreationReq(
-	apiKey: string,
-	id: string,
-	repoId: string,
-	repoName: string,
+  apiKey: string,
+  id: string,
+  repoId: string,
+  repoName: string,
 ): Promise<App> {
-	const query = `
+  const query = `
     mutation MapRepoAndFinishProjectCreation {
       mapRepoAndFinishProjectCreation(input: {id: "${id}", repoName: "${repoName}", repoId: "${repoId}", sourceType: CUSTOM, defaultBranchName: "main"}) {
           id
           name
           repoId
       }
-    }`;
+    }`
 
-	const data: any = await sendGraphQLReqToHypermode(apiKey, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query)
 
-	const project: App = data.data.mapRepoAndFinishProjectCreation;
+  const project: App = data.data.mapRepoAndFinishProjectCreation
 
-	return project;
+  return project
 }
 
 export async function sendCreateProjectReq(
-	apiKey: string,
-	orgId: string,
-	projectName: string,
-	repoId: string,
-	repoName: string,
+  apiKey: string,
+  orgId: string,
+  projectName: string,
+  repoId: string,
+  repoName: string,
 ): Promise<App> {
-	const slug = getSlugFromName(projectName);
-	const query = `
+  const slug = getSlugFromName(projectName)
+  const query = `
     mutation CreateProjectBranchRuntime {
       createProjectBranchRuntime(input: {orgId: "${orgId}", clusterId: "clu-018f07d5-2446-7dbe-a766-dfab00c726de", name: "${projectName}", slug: "${slug}", repoId: "${repoId}", repoName: "${repoName}", sourceType: CUSTOM, defaultBranchName: "main"}
       ) {
@@ -111,20 +109,20 @@ export async function sendCreateProjectReq(
           name
           repoId
       }
-    }`;
+    }`
 
-	const res: any = await sendGraphQLReqToHypermode(apiKey, query);
+  const res: any = await sendGraphQLReqToHypermode(apiKey, query)
 
-	const project: App = res.data.createProjectBranchRuntime;
+  const project: App = res.data.createProjectBranchRuntime
 
-	return project;
+  return project
 }
 
 export async function getProjectsByOrgReq(
-	apiKey: string,
-	orgId: string,
+  apiKey: string,
+  orgId: string,
 ): Promise<App[]> {
-	const query = `
+  const query = `
       query GetProjectsByOrg {
         getOrg(id: "${orgId}") {
             id
@@ -134,30 +132,30 @@ export async function getProjectsByOrgReq(
                 repoId
             }
         }
-    }`;
+    }`
 
-	const data: any = await sendGraphQLReqToHypermode(apiKey, query);
+  const data: any = await sendGraphQLReqToHypermode(apiKey, query)
 
-	const projects: App[] = data.data.getOrg.projects;
+  const projects: App[] = data.data.getOrg.projects
 
-	return projects;
+  return projects
 }
 
 export async function sendGetRepoIdReq(
-	apiKey: string,
-	installationId: string,
-	gitUrl: string,
+  apiKey: string,
+  installationId: string,
+  gitUrl: string,
 ): Promise<string> {
-	const query = `
+  const query = `
       query getUserRepoIdByUrl {
         getUserRepoIdByUrl(installationId: "${installationId}", gitUrl: "${gitUrl}")
-      }`;
+      }`
 
-	const res: any = await sendGraphQLReqToHypermode(apiKey, query);
+  const res: any = await sendGraphQLReqToHypermode(apiKey, query)
 
-	if (!res.data.getUserRepoIdByUrl) {
-		throw new Error("No repoId found for the given installationId and gitUrl");
-	}
+  if (!res.data.getUserRepoIdByUrl) {
+    throw new Error('No repoId found for the given installationId and gitUrl')
+  }
 
-	return res.data.getUserRepoIdByUrl;
+  return res.data.getUserRepoIdByUrl
 }
