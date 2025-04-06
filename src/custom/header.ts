@@ -6,10 +6,10 @@
 import { getLogo } from "./logo.js";
 
 export function getHeader(cliVersion: string): string {
-  let out = "";
-  out += getLogo();
-  out += "\n";
-  out += `Hypermode CLI v${cliVersion}`;
-  out += "\n";
-  return out;
+	let out = "";
+	out += getLogo();
+	out += "\n";
+	out += `Hypermode CLI v${cliVersion}`;
+	out += "\n";
+	return out;
 }
