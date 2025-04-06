@@ -45,5 +45,5 @@ hyp link
 
 ## License
 
-Hyp CLI is © Hypermode Inc., and licensed under the terms of the Apache License,
-Version 2.0. See the [LICENSE](./LICENSE) file for a complete copy of the license.
+Hyp CLI is © Hypermode Inc., and licensed under the terms of the Apache License, Version 2.0. See
+the [LICENSE](./LICENSE) file for a complete copy of the license.

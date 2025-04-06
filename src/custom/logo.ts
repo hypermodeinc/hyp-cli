@@ -14,5 +14,5 @@ const logo = String.raw`
 `;
 
 export function getLogo(): string {
-  return gradient(["#E3BFFF", "#602AF8"]).multiline(logo);
+	return gradient(["#E3BFFF", "#602AF8"]).multiline(logo);
 }
