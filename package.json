@@ -18,7 +18,7 @@
     "@sindresorhus/slugify": "2.2.1",
     "chalk": "5.4.1",
     "gradient-string": "3.0.0",
-    "open": "10.1.0"
+    "open": "10.1.1"
   },
   "devDependencies": {
     "@oclif/test": "4.1.12",
