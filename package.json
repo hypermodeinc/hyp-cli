@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@oclif/test": "4.1.12",
-    "@types/node": "22.14.1",
-    "oclif": "4.17.45",
+    "@types/node": "22.15.2",
+    "oclif": "4.17.46",
     "prettier": "3.5.3",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"
