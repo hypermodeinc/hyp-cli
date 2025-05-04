@@ -12,13 +12,13 @@
   "bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
   "dependencies": {
     "@inquirer/core": "10.1.10",
-    "@inquirer/prompts": "7.4.1",
-    "@oclif/core": "4.2.10",
+    "@inquirer/prompts": "7.5.0",
+    "@oclif/core": "4.3.0",
     "@scarf/scarf": "1.4.0",
     "@sindresorhus/slugify": "2.2.1",
     "chalk": "5.4.1",
     "gradient-string": "3.0.0",
-    "open": "10.1.1"
+    "open": "10.1.2"
   },
   "devDependencies": {
     "@oclif/test": "4.1.12",
