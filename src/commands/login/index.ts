@@ -141,7 +141,7 @@ export default class LoginIndex extends Command {
                 userId,
                 name: 'CLI Access Key',
                 expiresIn: 60 * 60 * 24 * 365, // 365 days
-                prefix: 'hyp_usr',
+                prefix: 'hyp_usr_',
                 metadata: {
                   ownerType: 'user',
                   ownerId: userId,
