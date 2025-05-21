@@ -21,7 +21,7 @@
     "open": "10.1.2"
   },
   "devDependencies": {
-    "@oclif/test": "4.1.12",
+    "@oclif/test": "4.1.13",
     "@types/node": "22.15.18",
     "oclif": "4.17.46",
     "prettier": "3.5.3",
