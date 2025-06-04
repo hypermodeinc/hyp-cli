@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@oclif/test": "4.1.13",
-    "@types/node": "22.15.21",
+    "@types/node": "22.15.29",
     "oclif": "4.17.46",
     "prettier": "3.5.3",
     "ts-node": "10.9.2",
