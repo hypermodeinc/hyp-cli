@@ -151,6 +151,16 @@ export async function readSettingsJson(filePath: string): Promise<{
   apiKey: null | string
   workspaceId: null | string
 }> {
+  if (!(await fileExists(filePath))) {
+    return {
+      content: '',
+      email: null,
+      installationIds: null,
+      apiKey: null,
+      workspaceId: null,
+    }
+  }
+
   const content = await fs.readFile(filePath, 'utf8')
 
   let email: null | string = null
