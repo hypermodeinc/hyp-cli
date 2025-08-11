@@ -11,14 +11,14 @@
   "repository": "github:hypermodeinc/hyp-cli",
   "bugs": "https://github.com/hypermodeinc/hyp-cli/issues",
   "dependencies": {
-    "@inquirer/core": "10.1.13",
-    "@inquirer/prompts": "7.5.3",
-    "@oclif/core": "4.3.3",
+    "@inquirer/core": "10.1.15",
+    "@inquirer/prompts": "7.8.1",
+    "@oclif/core": "4.5.2",
     "@scarf/scarf": "1.4.0",
     "@sindresorhus/slugify": "2.2.1",
-    "chalk": "5.4.1",
+    "chalk": "5.5.0",
     "gradient-string": "3.0.0",
-    "open": "10.1.2"
+    "open": "10.2.0"
   },
   "devDependencies": {
     "@oclif/test": "4.1.13",
