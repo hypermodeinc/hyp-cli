@@ -22,11 +22,11 @@
   },
   "devDependencies": {
     "@oclif/test": "4.1.13",
-    "@types/node": "22.16.5",
-    "oclif": "4.21.2",
+    "@types/node": "22.17.1",
+    "oclif": "4.22.9",
     "prettier": "3.6.2",
     "ts-node": "10.9.2",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "files": ["/bin", "/dist", "/oclif.manifest.json"],
   "keywords": ["Hypermode", "CLI"],
